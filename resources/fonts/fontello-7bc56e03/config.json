@@ -25,6 +25,12 @@
       "src": "fontawesome"
     },
     {
+      "uid": "6605ee6441bf499ffa3c63d3c7409471",
+      "css": "move",
+      "code": 59434,
+      "src": "fontawesome"
+    },
+    {
       "uid": "39a5a0d7ce8342d149373b2ce219503a",
       "css": "alert",
       "code": 59428,
@@ -239,6 +245,12 @@
       "css": "grid",
       "code": 59419,
       "src": "modernpics"
+    },
+    {
+      "uid": "ff16079eb4be12c49bf3014d2322acdd",
+      "css": "github-circled",
+      "code": 59433,
+      "src": "zocial"
     },
     {
       "uid": "61a783a38ab7b1e312fc5cd9b13fd349",
