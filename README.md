@@ -4,6 +4,9 @@ A pixel-art editor built on ClojureScript and Om. It was largely inspired by the
 code snippet required to implement undo functionality in David Nolen's Time Travel blog post
 (http://swannodette.github.io/2013/12/31/time-travel/).
 
+Play with it here:
+http://jackschaedler.github.io/goya/.
+
 
 ![Alt text](preview.png "Goya in Action")
 
