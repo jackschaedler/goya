@@ -284,8 +284,8 @@ body
   line-height: 25px;
   padding-top: 4px;
   padding-bottom: 4px;
-  padding-left: 8px;
-  margin: 5px;
+  padding-left: 5px;
+  margin: 3px;
   -webkit-user-select: none;
 
   border: 1px solid #626262;
@@ -308,16 +308,16 @@ body
 .tools-menu-item i
 {
   padding-right: 5px;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: normal;
 }
 
 .selected-color-indicator
 {
   clear: both;
-  width: 204px;
+  width: 207px;
   height: 10px;
-  margin-top: 5px;
+  margin-top: 10px;
   margin-left: 5px;
   float: left;
 }
