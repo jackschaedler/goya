@@ -296,7 +296,7 @@ body
   background: #212121;
   color: #d2d2d2;
 
-  border: 2px solid #828282;
+  outline: 2px solid #828282;
 }
 
 .tools-menu-item:hover
