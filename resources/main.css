@@ -643,6 +643,15 @@ body
   padding-top: 100px;
 }
 
+
+.about-info i
+{
+  font-size: 16px;
+  width: 25px;
+  height: 25px;
+  color: #727272;
+}
+
 .about-info a:link
 {
   color: #727272;
