@@ -15,7 +15,7 @@
     (set! (.-height canvas) screen-canvas-height)
     (set! (.-fillStyle context) "#ff0000")
     (.fillRect context 0 0 screen-canvas-width screen-canvas-height)
-    (doseq [x (range 0 pixel-count)]
+    (dotimes [x pixel-count]
       (let [pix-x (* (mod x width) pixel-size)
             pix-y (* (quot x height) pixel-size)
             color (nth pixels x)]
