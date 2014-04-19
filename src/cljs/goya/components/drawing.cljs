@@ -3,6 +3,7 @@
 	(:require [om.core :as om :include-macros true]
             [om.dom :as omdom :include-macros true]
             [goog.events :as events]
+            [goya.components.geometry :as geometry]
             [goya.guistate :as guistate]
             [clojure.set :as sets]
             [cljs.core.async :refer [put! chan <! alts!]]))
@@ -75,24 +76,12 @@
         y (quot mouse-y pixel-size)]
     [(* x pixel-size) (* y pixel-size)]))
 
-(defn screen-to-doc [x y zoom-factor]
-  [(quot x zoom-factor) (quot y zoom-factor)])
-
-(defn flatten-to-index [x y doc-width]
-  (+ (* y doc-width) x))
-
-(defn normalize-rect [orig-x orig-y nx ny]
-    [(min orig-x (inc nx))
-     (min orig-y (inc ny))
-     (max orig-x (inc nx))
-     (max orig-y (inc ny))])
-
 (defn visit-pixels-for-rect-tool [doc-x doc-y]
   (let [[orig-x orig-y] (get-in @guistate/transient-state [:mouse-down-pos])
-        [x y nx ny] (normalize-rect orig-x orig-y doc-x doc-y)]
+        [x y nx ny] (geometry/normalize-rect orig-x orig-y doc-x doc-y)]
     (doseq [dx (range x nx)]
       (doseq [dy (range y ny)]
-        (visit-pixel (flatten-to-index dx dy 64))))))
+        (visit-pixel (geometry/flatten-to-index dx dy 64))))))
 
 (defn unpack-event [event]
   [(.-offsetX event) (.-offsetY event)])
@@ -102,7 +91,7 @@
 ;; Pick color
 
 (defn pick-color [app doc-x doc-y]
-  (let [index (flatten-to-index doc-x doc-y 64)
+  (let [index (geometry/flatten-to-index doc-x doc-y 64)
         color (nth (get-in @app [:main-app :image-data]) index)]
     (om/update! app [:tools :paint-color] color)))
 
@@ -139,7 +128,7 @@
 
 (defn visit-pixels-for-fill-tool [doc-x doc-y image-data]
   (let [[orig-x orig-y] (get-in @guistate/transient-state [:mouse-down-pos])
-        idx (flatten-to-index orig-x orig-y 64)
+        idx (geometry/flatten-to-index orig-x orig-y 64)
         color (nth image-data idx)
         fill-target (flood idx image-data color)]
     (doseq [i fill-target]
@@ -148,14 +137,130 @@
 
 ;; =============================================================================
 
-(defn paint-canvas-mouse-pos [app event]
+(defn clear-preview-canvas []
+  (set! (.-width preview-canvas-elem) (.-width preview-canvas-elem)))
+
+
+;; =============================================================================
+;; Some routines specific to the move/selection tool
+;; Pro: Learned a bit about clojure list comprehensions
+;; Con: This file is turning into something like a little monster
+
+(defn assoc-map [img-vector indices-to-colors]
+  (loop [img img-vector
+         keys-to-assoc (vec (keys indices-to-colors))]
+    (if (empty? keys-to-assoc)
+      img
+      (let [key-to-assoc (peek keys-to-assoc)
+            keys-to-assoc (pop keys-to-assoc)
+            color (indices-to-colors key-to-assoc)
+            img (if (not (= key-to-assoc :clipped))
+                  (assoc img key-to-assoc color)
+                  img)]
+        (recur img keys-to-assoc)))))
+
+
+(defn create-sub-image-for-rect [rect color]
+  (let [width (geometry/rect-width rect)
+        height (geometry/rect-height rect)
+        pixel-count (* width height)
+        image-data (vec (take pixel-count (repeat color)))]
+    {:width width
+     :height height
+     :image-data image-data}))
+
+
+(defn paste-image [app owner doc-x doc-y sub-image]
+  (let [main-image (get-in @app [:main-app :image-data])
+        main-image-width (get-in @app [:main-app :canvas-width])
+        pixels-in-sub-image (count (:image-data sub-image))
+        indices (for [i (range 0 pixels-in-sub-image)
+                      :let [x (mod i (:width sub-image))
+                            y (quot i (:width sub-image))]]
+                      [(if (geometry/contains-point [0 0 63 63] [(+ x doc-x) (+ y doc-y)])
+                           (geometry/flatten-to-index (+ x doc-x) (+ y doc-y) main-image-width)
+                           :clipped)])
+        flat-indices (vec (flatten (vec indices)))
+        indices-to-colors (zipmap flat-indices (:image-data sub-image))
+        new-image (assoc-map main-image indices-to-colors)]
+    (om/update! app [:main-app :image-data] (vec new-image))))
+
+
+(defn blit-sub-image [app sub-image xoff yoff]
+  (let [canvas preview-canvas-elem
+        context (.getContext canvas "2d")
+        width (get-in @app [:main-app :canvas-width])
+        height (get-in @app [:main-app :canvas-height])
+        zoom-factor (get-in @app [:zoom-factor])
+        pixel-size zoom-factor
+        sub-image-pixel-count (count (:image-data sub-image))]
+    (doseq [x (range 0 sub-image-pixel-count)]
+      (let [pix-x (* (mod x (:width sub-image)) pixel-size)
+            pix-y (* (quot x (:width sub-image)) pixel-size)
+            color (nth (:image-data sub-image) x)
+            x-with-offset (+ pix-x (* xoff pixel-size))
+            y-with-offset (+ pix-y (* yoff pixel-size))]
+        (set! (.-fillStyle context) color)
+        (.fillRect context x-with-offset y-with-offset pixel-size pixel-size)))))
+
+
+(defn clip-sub-image [image rect]
+  (let [[x1 y1 x2 y2] rect
+        width (geometry/rect-width rect)
+        height (geometry/rect-height rect)
+        main-image-width 64
+        sub-image-indices(for [y (range y1 y2)
+                               x (range x1 x2)
+                               :let [i (geometry/flatten-to-index x y main-image-width)]]
+                               i)
+        sub-image-data (vec (map #(nth image %) sub-image-indices))]
+      {:width width
+       :height height
+       :image-data sub-image-data}))
+
+
+;; =============================================================================
+
+(defn clear-selection-state [owner]
+  (om/set-state! owner :selection [0 0 0 0])
+  (om/set-state! owner :mouse-offset-in-selection [0 0])
+  (om/set-state! owner :selection-image {})
+  (om/set-state! owner :user-is-moving-selection false))
+
+
+(defn make-selection [app owner doc-x doc-y]
+  (let [[orig-x orig-y] (get-in @guistate/transient-state [:mouse-down-pos])
+        selection-rect (geometry/normalize-rect orig-x orig-y doc-x doc-y)
+        main-image (get-in @app [:main-app :image-data])]
+    (om/set-state! owner :selection selection-rect)
+    (om/set-state! owner :selection-image (clip-sub-image main-image selection-rect))))
+
+
+(defn draw-selection [app owner]
+   (let [preview-context (.getContext preview-canvas-elem "2d")
+         [x1 y1 x2 y2] (om/get-state owner :selection)
+         zoom-factor (get-in app [:zoom-factor])]
+     (clear-preview-canvas)
+     (set! (.-strokeStyle preview-context) "#ffffff")
+     (.setLineDash preview-context #js [5])
+     (.rect preview-context
+         (* x1 zoom-factor)
+         (* y1 zoom-factor)
+         (* (- x2 x1) zoom-factor)
+         (* (- y2 y1) zoom-factor))
+     (.stroke preview-context)))
+
+
+;; =============================================================================
+
+(defn paint-canvas-mouse-pos [app owner event]
 (let [[x y] (unpack-event event)
       zoom-factor (get-in @app [:zoom-factor])
-      [doc-x doc-y] (screen-to-doc x y zoom-factor)
+      [doc-x doc-y] (geometry/screen-to-doc x y zoom-factor)
       pixel-size zoom-factor
       doc-canvas-width (get-in @app [:main-app :canvas-width])
       doc-canvas-height (get-in @app [:main-app :canvas-height])
-      doc-index (flatten-to-index doc-x doc-y doc-canvas-width)
+      doc-index (geometry/flatten-to-index doc-x doc-y doc-canvas-width)
       paint-color (get-in @app [:tools :paint-color])
       paint-tool (get-in @app [:tools :paint-tool])
       preview-context (.getContext preview-canvas-elem "2d")
@@ -175,7 +280,41 @@
          (* mouse-down-x zoom-factor)
          (* mouse-down-y zoom-factor)
          (* (- adjusted-doc-x mouse-down-x) zoom-factor)
-         (* (- adjusted-doc-y mouse-down-y) zoom-factor))))))
+         (* (- adjusted-doc-y mouse-down-y) zoom-factor))))
+
+  (when (= paint-tool :selection)
+    (let [user-is-moving-selection (om/get-state owner :user-is-moving-selection)]
+      (when (not user-is-moving-selection)
+        (clear-preview-canvas)
+        (set! (.-fillStyle preview-context) "rgba(127,127,127,0.3)")
+        (let [adjusted-doc-x (inc doc-x)
+              adjusted-doc-y (inc doc-y)]
+          (.fillRect preview-context
+             (* mouse-down-x zoom-factor)
+             (* mouse-down-y zoom-factor)
+             (* (- adjusted-doc-x mouse-down-x) zoom-factor)
+             (* (- adjusted-doc-y mouse-down-y) zoom-factor))
+          (set! (.-strokeStyle preview-context) "#ffffff")
+          (.setLineDash preview-context #js [5])
+          (.rect preview-context
+            (* mouse-down-x zoom-factor)
+            (* mouse-down-y zoom-factor)
+            (* (- adjusted-doc-x mouse-down-x) zoom-factor)
+            (* (- adjusted-doc-y mouse-down-y) zoom-factor))
+          (.stroke preview-context)))
+      (when user-is-moving-selection
+        (let [[offset-x offset-y] (om/get-state owner :mouse-offset-in-selection)
+              [x1 y1 x2 y2] (om/get-state owner :selection)
+              blit-x (- doc-x offset-x)
+              blit-y (- doc-y offset-y)]
+          (clear-preview-canvas)
+          (set! (.-fillStyle preview-context) (get-in @app [:tools :paint-color]))
+          (.fillRect preview-context
+             (* x1 zoom-factor)
+             (* y1 zoom-factor)
+             (* (- x2 x1) zoom-factor)
+             (* (- y2 y1) zoom-factor))
+          (blit-sub-image app (om/get-state owner :selection-image) blit-x blit-y)))))))
 
 
 ;; =============================================================================
@@ -184,7 +323,18 @@
   (reify
     om/IInitState
       (init-state [_]
-        {:mouse-chan (chan)})
+        {:mouse-chan (chan)
+         :user-is-moving-selection false
+         :selection [0 0 0 0]
+         :selection-image {}
+         :mouse-offset-in-selection [0 0]})
+
+
+    om/IDidUpdate
+      (did-update [_ _ _]
+          (clear-preview-canvas)
+          (when (= (get-in app [:tools :paint-tool]) :selection)
+            (draw-selection app owner)))
 
     om/IWillMount
     (will-mount [_]
@@ -195,29 +345,60 @@
                   event-type (.-type e)
                   [x y] (unpack-event e)
                   zoom-factor (get-in @app [:zoom-factor])
-                  [doc-x doc-y] (screen-to-doc x y zoom-factor)
+                  [doc-x doc-y] (geometry/screen-to-doc x y zoom-factor)
                   paint-tool (get-in @app [:tools :paint-tool])]
 
                   (when (= event-type "mousedown")
-                    (reset! guistate/transient-state
-                            (assoc @guistate/transient-state :user-is-drawing true))
-                    (reset! guistate/transient-state
-                            (assoc @guistate/transient-state :mouse-down-pos [doc-x doc-y]))
-                    (paint-canvas-mouse-pos app e))
+                    (when (not (= paint-tool :selection))
+                      (reset! guistate/transient-state
+                              (assoc @guistate/transient-state :user-is-drawing true))
+                      (reset! guistate/transient-state
+                              (assoc @guistate/transient-state :mouse-down-pos [doc-x doc-y]))
+                      (paint-canvas-mouse-pos app owner e))
+                    (when (= paint-tool :selection)
+                      (let [mouse-is-within-selection (geometry/contains-point
+                                                         (om/get-state owner :selection)
+                                                         [doc-x doc-y])
+                            [x1 y1 x2 y2] (om/get-state owner :selection)
+                            offset-in-selection [(- doc-x x1) (- doc-y y1)]]
+                         (when mouse-is-within-selection
+                               (om/set-state! owner :user-is-moving-selection true)
+                               (om/set-state! owner :mouse-offset-in-selection offset-in-selection)))
+                      (reset! guistate/transient-state
+                              (assoc @guistate/transient-state :user-is-drawing true))
+                      (reset! guistate/transient-state
+                              (assoc @guistate/transient-state :mouse-down-pos [doc-x doc-y]))
+                      (paint-canvas-mouse-pos app owner e)))
 
                   (when (= event-type "mouseup")
-                    (reset! guistate/transient-state
-                            (assoc @guistate/transient-state :user-is-drawing false))
                     (when (= paint-tool :box)
                       (visit-pixels-for-rect-tool doc-x doc-y))
                     (when (= paint-tool :fill)
                       (visit-pixels-for-fill-tool doc-x doc-y (get-in @app [:main-app :image-data])))
                     (when (= paint-tool :picker)
                       (pick-color app doc-x doc-y))
-                    (commit-stroke app))
+                    (when (and (= paint-tool :selection) (not (om/get-state owner :user-is-moving-selection)))
+                      (make-selection app owner doc-x doc-y))
+                    (when (and (= paint-tool :selection) (om/get-state owner :user-is-moving-selection))
+                      (let [[xOff yOff] (om/get-state owner :mouse-offset-in-selection)
+                            [x1 y1 x2 y2] (om/get-state owner :selection)
+                            paste-x (- doc-x xOff)
+                            paste-y (- doc-y yOff)
+                            backfill (create-sub-image-for-rect (om/get-state owner :selection)
+                                                                (get-in @app [:tools :paint-color]))]
+                      (paste-image app owner x1 y1 backfill)
+                      (paste-image app owner paste-x paste-y (om/get-state owner :selection-image)))
+                      (clear-selection-state owner)
+                      (om/transact! app
+                        [:main-app :undo-history]
+                        #(conj % {:action (str "Moved pixels") :icon "move"})
+                        :add-to-undo))
+                    (commit-stroke app)
+                    (reset! guistate/transient-state
+                            (assoc @guistate/transient-state :user-is-drawing false)))
 
                   (when (and (= event-type "mousemove") (:user-is-drawing @guistate/transient-state))
-                    (paint-canvas-mouse-pos app e))
+                    (paint-canvas-mouse-pos app owner e))
 
                   (when (= event-type "mousemove")
                     (reset! guistate/transient-state (assoc @guistate/transient-state :mouse-pos [doc-x doc-y])))
