@@ -69,6 +69,12 @@ body
   color: #d2d2d2;
 }
 
+.browser-info
+{
+  font-size: 30px;
+  margin-top: 20px;
+}
+
 
 /************************************************************/
 /* Top Level Containers */
