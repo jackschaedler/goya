@@ -194,7 +194,7 @@
         zoom-factor (get-in @app [:zoom-factor])
         pixel-size zoom-factor
         sub-image-pixel-count (count (:image-data sub-image))]
-    (doseq [x (range 0 sub-image-pixel-count)]
+    (dotimes [x sub-image-pixel-count]
       (let [pix-x (* (mod x (:width sub-image)) pixel-size)
             pix-y (* (quot x (:width sub-image)) pixel-size)
             color (nth (:image-data sub-image) x)
