@@ -64,6 +64,17 @@
           (omdom/i #js {:className "icon-pipette"}))))))
 
 
+(defn selection-tool-component [app owner]
+  (reify
+    om/IRenderState
+      (render-state [this {:keys [toolchan]}]
+        (let [current-paint-tool (:paint-tool app)
+              class-name (class-name-for-tool current-paint-tool :selection)]
+        (omdom/div #js {:className class-name
+                        :onClick (fn [e] (put! toolchan :selection))}
+          (omdom/i #js {:className "icon-move"}))))))
+
+
 
 (defn tools-menu-component [app owner]
   (reify
@@ -87,4 +98,5 @@
         (om/build box-tool-component app {:init-state {:toolchan toolchan}})
         (om/build fill-tool-component app {:init-state {:toolchan toolchan}})
         (om/build picker-tool-component app {:init-state {:toolchan toolchan}})
+        (om/build selection-tool-component app {:init-state {:toolchan toolchan}})
         (om/build color-tool-component app)))))
