@@ -2,6 +2,7 @@
 .icon-video:before { content: '\e826'; } /* '' */
 .icon-lightbulb:before { content: '\e820'; } /* '' */
 .icon-attention:before { content: '\e825'; } /* '' */
+.icon-move:before { content: '\e82a'; } /* '' */
 .icon-alert:before { content: '\e824'; } /* '' */
 .icon-lamp:before { content: '\e821'; } /* '' */
 .icon-back-in-time:before { content: '\e81c'; } /* '' */
@@ -38,5 +39,6 @@
 .icon-layers:before { content: '\e807'; } /* '' */
 .icon-key-inv:before { content: '\e80e'; } /* '' */
 .icon-grid:before { content: '\e81b'; } /* '' */
+.icon-github-circled:before { content: '\e829'; } /* '' */
 .icon-download-1:before { content: '\e81f'; } /* '' */
 .icon-pipette:before { content: '\e811'; } /* '' */
