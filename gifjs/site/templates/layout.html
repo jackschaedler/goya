@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>{{ name }}</title>
+  <meta name="description" content="{{ description }}">
+  <meta name="keywords" content="{{ keywords }}">
+  <meta name="viewport" content="width=device-width">
+  <meta property="og:title" content="{{ name }}">
+  <meta property="og:url" content="{{ url }}">
+  <meta property="og:description" content="{{ description }}">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="{{ env.config.baseUrl }}styles/main.css">
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-41063995-1', 'jnordberg.github.io');
+    ga('send', 'pageview');
+  </script>
+  {% block scripts %}{% endblock %}
+</head>
+<body>
+  <header>
+    <h1>gif.js</h1>
+    <p>{{ description }}</p>
+    <p class="github"><a href="https://github.com/jnordberg/gif.js">Download &amp; Docs on GitHub</a></p>
+  </header>
+  <div class="wrap">
+    {% block body %}{% endblock %}
+  </div>
+  <footer>
+    <a href="https://creativecommons.org/licenses/by-sa/3.0/">&copy;&copy;</a> 2013
+    <a href="http://johan-nordberg.com/">Johan Nordberg</a>
+  </footer>
+</body>
+</html>

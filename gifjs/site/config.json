@@ -1,0 +1,19 @@
+{
+  "locals": {
+    "name": "gif.js",
+    "url": "http://jnordberg.github.io/gif.js",
+    "description": "Full-featured JavaScript GIF encoder that runs in your browser.",
+    "keywords": "gif, encoder, animation, browser, unicorn",
+    "version": "3"
+  },
+  "baseUrl": "/gif.js/",
+  "require": {
+    "hljs": "highlight.js"
+  },
+  "plugins": [
+    "wintersmith-browserify",
+    "wintersmith-less",
+    "wintersmith-nunjucks",
+    "./plugins/jsignore.coffee"
+  ]
+}
