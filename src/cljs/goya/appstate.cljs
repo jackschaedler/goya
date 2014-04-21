@@ -26,7 +26,7 @@
      {
        :title "Goya"
        :subtitle "pixel art studio"
-       :version "v0.0.2a"
+       :version "v0.0.3a"
      }
 
      :zoom-factor 6
@@ -43,4 +43,5 @@
 
      :main-menu-items{:new-document {:text "Prime Canvas" :icon "icon-doc-inv" :command :new-doc}
                       :inspiration {:text "Inspiration from the Masters" :icon "icon-cloud-flash" :command :inspire}
-                      :export-document {:text "Export Canvas" :icon "icon-download" :command :export-doc}}}))
+                      :export-document {:text "Export Canvas" :icon "icon-download" :command :export-doc}
+                      :export-history-animation {:text "Export History as Animation" :icon "icon-video" :command :export-history-animation}}}))
