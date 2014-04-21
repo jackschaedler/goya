@@ -15,7 +15,9 @@
           :output-to "resources/main.js"
           :optimizations :advanced
           :pretty-print false
-          :preamble ["react/react_with_addons.min.js"]
-          :externs ["react/react_with_addons.js"]
+          :preamble ["react/react_with_addons.min.js"
+                     "gifjs/dist/gif.js"]
+          :externs ["react/react_with_addons.js"
+                    "gifjs/dist/gif.js"]
           :closure-warnings {:externs-validation :off
                              :non-standard-jsdoc :off}}}]})
