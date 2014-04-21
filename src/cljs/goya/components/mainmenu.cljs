@@ -15,8 +15,7 @@
   (let [canvas (. js/document (getElementById "main-canvas"))
         download-link (. js/document (getElementById "image-download-link"))]
     (set! (.-href download-link) (.toDataURL canvas))
-    (.click download-link)
-    (dump-image)))
+    (.click download-link)))
 
 
 (defn download-history-animation [blob]
