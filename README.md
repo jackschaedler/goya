@@ -15,6 +15,8 @@ http://jackschaedler.github.io/goya/.
 
 Fontello.com provides the very nice and spiffy icon fonts which are used in the GUI.
 
+Gif export uses the gif.js library (https://github.com/jnordberg/gif.js)
+
 
 ## License
 
