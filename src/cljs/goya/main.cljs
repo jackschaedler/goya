@@ -47,7 +47,8 @@
         (str (:subtitle app) " / " (:version app)))))
   app/app-state
   {:path [:info]
-   :target (. js/document (getElementById "title"))})
+   :target (. js/document (getElementById "title"))
+   :tx-listen #(timemachine/handle-transaction % %)})
 
 
 (om/root
@@ -115,8 +116,7 @@
 (om/root
   drawing/canvas-painting-component
   app/app-state
-  {:target (. js/document (getElementById "canvas-watcher"))
-   :tx-listen #(timemachine/handle-transaction % %)})
+  {:target (. js/document (getElementById "canvas-watcher"))})
 
 
 
