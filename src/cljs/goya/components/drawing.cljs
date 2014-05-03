@@ -3,6 +3,7 @@
 	(:require [om.core :as om :include-macros true]
             [om.dom :as omdom :include-macros true]
             [goog.events :as events]
+            [goya.components.bresenham :as bresenham]
             [goya.components.geometry :as geometry]
             [goya.guistate :as guistate]
             [clojure.set :as sets]
@@ -253,6 +254,26 @@
 
 ;; =============================================================================
 
+(defn visit-pixels-for-line-segment [x0 y0 x1 y1]
+  (let [coords (bresenham/bresenham x0 y0 x1 y1)
+        flat-coords (vec (map #(geometry/flatten-point-to-index % 64) coords))]
+    (reset! visited-pixels (vec (concat @visited-pixels flat-coords)))))
+
+(defn paint-pixel [coord pixel-size]
+  (let [[x y] coord
+        preview-context (.getContext preview-canvas-elem "2d")]
+    (.fillRect preview-context
+               (* x pixel-size)
+               (* y pixel-size)
+               pixel-size pixel-size)))
+
+(defn paint-pixels-for-pencil-tool [coords pixel-size]
+  (dorun (map #(paint-pixel % pixel-size) coords)))
+
+
+;; =============================================================================
+
+
 (defn paint-canvas-mouse-pos [app owner event]
 (let [[x y] (unpack-event event)
       zoom-factor (get-in @app [:zoom-factor])
@@ -264,11 +285,18 @@
       paint-color (get-in @app [:tools :paint-color])
       paint-tool (get-in @app [:tools :paint-tool])
       preview-context (.getContext preview-canvas-elem "2d")
-      [mouse-down-x mouse-down-y] (get-in @guistate/transient-state [:mouse-down-pos])]
+      [mouse-down-x mouse-down-y] (get-in @guistate/transient-state [:mouse-down-pos])
+      last-pos (get-in @guistate/transient-state [:last-mouse-pos])
+      last-x (if (empty? last-pos) doc-x (nth last-pos 0))
+      last-y (if (empty? last-pos) doc-y (nth last-pos 1))]
   (when (= paint-tool :pencil)
-    (set! (.-fillStyle preview-context) paint-color)
-    (.fillRect preview-context (* doc-x zoom-factor) (* doc-y zoom-factor) pixel-size pixel-size)
-    (visit-pixel doc-index))
+    (let [active-pixels-since-last-event (bresenham/bresenham doc-x doc-y last-x last-y)]
+      (set! (.-fillStyle preview-context) paint-color)
+      (paint-pixels-for-pencil-tool (conj active-pixels-since-last-event [doc-x doc-y]) pixel-size)
+      (visit-pixel doc-index)
+      (visit-pixels-for-line-segment doc-x doc-y last-x last-y)
+      (reset! guistate/transient-state
+              (assoc @guistate/transient-state :last-mouse-pos [doc-x doc-y]))))
 
   (when (= paint-tool :box)
     (set! (.-width preview-canvas-elem) (.-width preview-canvas-elem))
@@ -371,6 +399,9 @@
                       (paint-canvas-mouse-pos app owner e)))
 
                   (when (= event-type "mouseup")
+                    (when (= paint-tool :pencil)
+                      (reset! guistate/transient-state
+                              (assoc @guistate/transient-state :last-mouse-pos [])))
                     (when (= paint-tool :box)
                       (visit-pixels-for-rect-tool doc-x doc-y))
                     (when (= paint-tool :fill)
