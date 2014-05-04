@@ -296,12 +296,10 @@ body
   line-height: 25px;
   padding-top: 4px;
   padding-bottom: 4px;
-  padding-left: 5px;
-  margin: 3px;
+  padding-left: 3px;
+  margin: 2px;
   -webkit-user-select: none;
   -moz-user-select: none;
-
-  border: 1px solid #626262;
 }
 
 .tools-menu-item-selected
@@ -309,19 +307,18 @@ body
   background: #212121;
   color: #d2d2d2;
 
-  outline: 2px solid #828282;
+  outline: 1px solid #828282;
 }
 
 .tools-menu-item:hover
 {
-  background: #212121;
   color: #e2e2e2;
 }
 
 .tools-menu-item i
 {
-  padding-right: 5px;
-  font-size: 18px;
+  padding-right: 2px;
+  font-size: 19px;
   font-weight: normal;
 }
 
