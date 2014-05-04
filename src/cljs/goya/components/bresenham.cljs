@@ -17,7 +17,7 @@
               y-step (if (< y0 y1) 1 -1)]
           (loop [x x0
                  y y0
-                 error (js/Math.floor delta-x 2)
+                 error (js/Math.floor (/ delta-x 2))
                  pixels (if is-steep [[y x]] [[x y]])]
             (if (> x x1)
               pixels
