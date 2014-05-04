@@ -31,15 +31,15 @@
           (omdom/i #js {:className "icon-edit"}))))))
 
 
-(defn pencil-tool-component [app owner]
+(defn brush-tool-component [app owner]
   (reify
     om/IRenderState
       (render-state [this {:keys [toolchan]}]
         (let [current-paint-tool (:paint-tool app)
-              class-name (class-name-for-tool current-paint-tool :pencil)]
+              class-name (class-name-for-tool current-paint-tool :brush)]
         (omdom/div #js {:className class-name
-                        :onClick (fn [e] (put! toolchan :pencil))}
-          (omdom/i #js {:className "icon-pencil"}))))))
+                        :onClick (fn [e] (put! toolchan :brush))}
+          (omdom/i #js {:className "icon-brush"}))))))
 
 
 (defn fill-tool-component [app owner]
@@ -94,7 +94,7 @@
     om/IRenderState
     (render-state [this {:keys [toolchan]}]
       (omdom/div #js {:className "tools-menu"}
-        (om/build pencil-tool-component app {:init-state {:toolchan toolchan}})
+        (om/build brush-tool-component app {:init-state {:toolchan toolchan}})
         (om/build box-tool-component app {:init-state {:toolchan toolchan}})
         (om/build fill-tool-component app {:init-state {:toolchan toolchan}})
         (om/build picker-tool-component app {:init-state {:toolchan toolchan}})

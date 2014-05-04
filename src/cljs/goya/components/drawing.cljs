@@ -51,7 +51,7 @@
 
     (om/update! app [:main-app :image-data] (vec new-image))
 
-    (when (= paint-tool :pencil)
+    (when (= paint-tool :brush)
       (om/transact! app
                     [:main-app :undo-history]
                     #(conj % {:action (str "Painted Stroke") :icon "pencil"})
@@ -289,7 +289,7 @@
       last-pos (get-in @guistate/transient-state [:last-mouse-pos])
       last-x (if (empty? last-pos) doc-x (nth last-pos 0))
       last-y (if (empty? last-pos) doc-y (nth last-pos 1))]
-  (when (= paint-tool :pencil)
+  (when (= paint-tool :brush)
     (let [active-pixels-since-last-event (bresenham/bresenham doc-x doc-y last-x last-y)]
       (set! (.-fillStyle preview-context) paint-color)
       (paint-pixels-for-pencil-tool (conj active-pixels-since-last-event [doc-x doc-y]) pixel-size)
@@ -399,7 +399,7 @@
                       (paint-canvas-mouse-pos app owner e)))
 
                   (when (= event-type "mouseup")
-                    (when (= paint-tool :pencil)
+                    (when (= paint-tool :brush)
                       (reset! guistate/transient-state
                               (assoc @guistate/transient-state :last-mouse-pos [])))
                     (when (= paint-tool :box)

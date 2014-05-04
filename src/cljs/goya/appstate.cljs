@@ -34,7 +34,7 @@
      :tools
      {
        :paint-color "#828282"
-       :paint-tool :pencil
+       :paint-tool :brush
        :grid-on false
      }
 
