@@ -42,6 +42,17 @@
           (omdom/i #js {:className "icon-brush"}))))))
 
 
+(defn line-tool-component [app owner]
+  (reify
+    om/IRenderState
+      (render-state [this {:keys [toolchan]}]
+        (let [current-paint-tool (:paint-tool app)
+              class-name (class-name-for-tool current-paint-tool :line)]
+        (omdom/div #js {:className class-name
+                        :onClick (fn [e] (put! toolchan :line))}
+          (omdom/i #js {:className "icon-pencil"}))))))
+
+
 (defn fill-tool-component [app owner]
   (reify
     om/IRenderState
@@ -95,6 +106,7 @@
     (render-state [this {:keys [toolchan]}]
       (omdom/div #js {:className "tools-menu"}
         (om/build brush-tool-component app {:init-state {:toolchan toolchan}})
+        (om/build line-tool-component app {:init-state {:toolchan toolchan}})
         (om/build box-tool-component app {:init-state {:toolchan toolchan}})
         (om/build fill-tool-component app {:init-state {:toolchan toolchan}})
         (om/build picker-tool-component app {:init-state {:toolchan toolchan}})
