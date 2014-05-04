@@ -20,71 +20,15 @@
                         :style #js {:backgroundColor (:paint-color app)}}))))
 
 
-(defn box-tool-component [app owner]
+(defn basic-tool-component [app owner]
   (reify
     om/IRenderState
-      (render-state [this {:keys [toolchan]}]
+      (render-state [this {:keys [toolchan tool-name css-class]}]
         (let [current-paint-tool (:paint-tool app)
-              class-name (class-name-for-tool current-paint-tool :box)]
+              class-name (class-name-for-tool current-paint-tool tool-name)]
         (omdom/div #js {:className class-name
-                        :onClick (fn [e] (put! toolchan :box))}
-          (omdom/i #js {:className "icon-edit"}))))))
-
-
-(defn brush-tool-component [app owner]
-  (reify
-    om/IRenderState
-      (render-state [this {:keys [toolchan]}]
-        (let [current-paint-tool (:paint-tool app)
-              class-name (class-name-for-tool current-paint-tool :brush)]
-        (omdom/div #js {:className class-name
-                        :onClick (fn [e] (put! toolchan :brush))}
-          (omdom/i #js {:className "icon-brush"}))))))
-
-
-(defn line-tool-component [app owner]
-  (reify
-    om/IRenderState
-      (render-state [this {:keys [toolchan]}]
-        (let [current-paint-tool (:paint-tool app)
-              class-name (class-name-for-tool current-paint-tool :line)]
-        (omdom/div #js {:className class-name
-                        :onClick (fn [e] (put! toolchan :line))}
-          (omdom/i #js {:className "icon-pencil"}))))))
-
-
-(defn fill-tool-component [app owner]
-  (reify
-    om/IRenderState
-      (render-state [this {:keys [toolchan]}]
-        (let [current-paint-tool (:paint-tool app)
-              class-name (class-name-for-tool current-paint-tool :fill)]
-        (omdom/div #js {:className class-name
-                        :onClick (fn [e] (put! toolchan :fill))}
-          (omdom/i #js {:className "icon-bucket"}))))))
-
-
-(defn picker-tool-component [app owner]
-  (reify
-    om/IRenderState
-      (render-state [this {:keys [toolchan]}]
-        (let [current-paint-tool (:paint-tool app)
-              class-name (class-name-for-tool current-paint-tool :picker)]
-        (omdom/div #js {:className class-name
-                        :onClick (fn [e] (put! toolchan :picker))}
-          (omdom/i #js {:className "icon-pipette"}))))))
-
-
-(defn selection-tool-component [app owner]
-  (reify
-    om/IRenderState
-      (render-state [this {:keys [toolchan]}]
-        (let [current-paint-tool (:paint-tool app)
-              class-name (class-name-for-tool current-paint-tool :selection)]
-        (omdom/div #js {:className class-name
-                        :onClick (fn [e] (put! toolchan :selection))}
-          (omdom/i #js {:className "icon-move"}))))))
-
+                        :onClick (fn [e] (put! toolchan tool-name))}
+          (omdom/i #js {:className css-class}))))))
 
 
 (defn tools-menu-component [app owner]
@@ -105,10 +49,22 @@
     om/IRenderState
     (render-state [this {:keys [toolchan]}]
       (omdom/div #js {:className "tools-menu"}
-        (om/build brush-tool-component app {:init-state {:toolchan toolchan}})
-        (om/build line-tool-component app {:init-state {:toolchan toolchan}})
-        (om/build box-tool-component app {:init-state {:toolchan toolchan}})
-        (om/build fill-tool-component app {:init-state {:toolchan toolchan}})
-        (om/build picker-tool-component app {:init-state {:toolchan toolchan}})
-        (om/build selection-tool-component app {:init-state {:toolchan toolchan}})
+        (om/build basic-tool-component app {:init-state {:toolchan toolchan
+                                                         :tool-name :brush
+                                                         :css-class "icon-brush"}})
+        (om/build basic-tool-component app {:init-state {:toolchan toolchan
+                                                         :tool-name :line
+                                                         :css-class "icon-pencil"}})
+        (om/build basic-tool-component app {:init-state {:toolchan toolchan
+                                                         :tool-name :box
+                                                         :css-class "icon-edit"}})
+        (om/build basic-tool-component app {:init-state {:toolchan toolchan
+                                                         :tool-name :fill
+                                                         :css-class "icon-bucket"}})
+        (om/build basic-tool-component app {:init-state {:toolchan toolchan
+                                                         :tool-name :picker
+                                                         :css-class "icon-pipette"}})
+        (om/build basic-tool-component app {:init-state {:toolchan toolchan
+                                                         :tool-name :selection
+                                                         :css-class "icon-move"}})
         (om/build color-tool-component app)))))
