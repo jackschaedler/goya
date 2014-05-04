@@ -9,4 +9,5 @@
   (atom
     {:user-is-drawing false
      :mouse-pos [0 0]
-     :mouse-down-pos [0 0]}))
+     :mouse-down-pos [0 0]
+     :last-mouse-pos []}))

@@ -26,7 +26,7 @@
      {
        :title "Goya"
        :subtitle "pixel art studio"
-       :version "v0.0.3a"
+       :version "v0.0.4a"
      }
 
      :zoom-factor 6
@@ -34,7 +34,7 @@
      :tools
      {
        :paint-color "#828282"
-       :paint-tool :pencil
+       :paint-tool :brush
        :grid-on false
      }
 

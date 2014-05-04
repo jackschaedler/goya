@@ -11,6 +11,9 @@
 (defn flatten-to-index [x y doc-width]
   (+ (* y doc-width) x))
 
+(defn flatten-point-to-index [point doc-width]
+  (flatten-to-index (point 0) (point 1) doc-width))
+
 
 (defn normalize-rect [orig-x orig-y nx ny]
     [(min orig-x (inc nx))
