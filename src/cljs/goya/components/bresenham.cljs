@@ -19,7 +19,7 @@
                  y y0
                  error (js/Math.floor delta-x 2)
                  pixels (if is-steep [[y x]] [[x y]])]
-            (if (>= x x1)
+            (if (> x x1)
               pixels
               (if (< error delta-y)
                 (recur (inc x)
