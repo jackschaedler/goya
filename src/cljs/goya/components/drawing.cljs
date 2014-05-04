@@ -54,7 +54,12 @@
     (when (= paint-tool :brush)
       (om/transact! app
                     [:main-app :undo-history]
-                    #(conj % {:action (str "Painted Stroke") :icon "pencil"})
+                    #(conj % {:action (str "Painted Stroke") :icon "brush"})
+                    :add-to-undo))
+    (when (= paint-tool :line)
+      (om/transact! app
+                    [:main-app :undo-history]
+                    #(conj % {:action (str "Painted Line") :icon "pencil"})
                     :add-to-undo))
     (when (= paint-tool :box)
       (om/transact! app
@@ -298,6 +303,12 @@
       (reset! guistate/transient-state
               (assoc @guistate/transient-state :last-mouse-pos [doc-x doc-y]))))
 
+  (when (= paint-tool :line)
+    (clear-preview-canvas)
+    (set! (.-fillStyle preview-context) paint-color)
+    (let [line-coords (bresenham/bresenham mouse-down-x mouse-down-y doc-x doc-y)]
+      (paint-pixels-for-pencil-tool line-coords pixel-size)))
+
   (when (= paint-tool :box)
     (set! (.-width preview-canvas-elem) (.-width preview-canvas-elem))
     (set! (.-fillStyle preview-context) paint-color)
@@ -404,6 +415,10 @@
                               (assoc @guistate/transient-state :last-mouse-pos [])))
                     (when (= paint-tool :box)
                       (visit-pixels-for-rect-tool doc-x doc-y))
+                    (when (= paint-tool :line)
+                      (let [last-x ((get-in @guistate/transient-state [:mouse-down-pos]) 0)
+                            last-y ((get-in @guistate/transient-state [:mouse-down-pos]) 1)]
+                        (visit-pixels-for-line-segment doc-x doc-y last-x last-y)))
                     (when (= paint-tool :fill)
                       (visit-pixels-for-fill-tool doc-x doc-y (get-in @app [:main-app :image-data])))
                     (when (= paint-tool :picker)
