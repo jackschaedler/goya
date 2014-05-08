@@ -105,13 +105,14 @@
 ;; =============================================================================
 ;; The Ned Flanders function
 
-(defn neighborinos [idx image-data color]
+(defn neighborinos [idx image-data doc-width doc-height color]
   (let [left   (dec idx)
         right  (inc idx)
-        top    (- idx 64)
-        bottom (+ idx 64)
+        top    (- idx doc-width)
+        bottom (+ idx doc-width)
         result [left right top bottom]
-        valid-result (filter #(and (>= % 0) (< % 4096)) result)]
+        total-pixel-count (* doc-width doc-height)
+        valid-result (filter #(and (>= % 0) (< % total-pixel-count)) result)]
     (filter #(= (nth image-data %) color) valid-result)))
 
 
@@ -119,7 +120,7 @@
 ;; Credits to:
 ;; http://stevelosh.com/blog/2012/10/caves-of-clojure-07-1/
 
-(defn flood [idx image-data color]
+(defn flood [idx image-data doc-width doc-height color]
   (loop [connected #{}
          to-connect #{idx}]
     (if (empty? to-connect)
@@ -127,16 +128,16 @@
       (let [current (first to-connect)
             connected (conj connected current)
             to-connect (disj to-connect current)
-            candidates (set (neighborinos current image-data color))
+            candidates (set (neighborinos current image-data doc-width doc-height color))
             to-connect (sets/union to-connect (sets/difference candidates connected))]
         (recur connected to-connect)))))
 
 
-(defn visit-pixels-for-fill-tool [doc-x doc-y image-data]
+(defn visit-pixels-for-fill-tool [doc-x doc-y image-data doc-width doc-height]
   (let [[orig-x orig-y] (get-in @guistate/transient-state [:mouse-down-pos])
         idx (geometry/flatten-to-index orig-x orig-y 64)
         color (nth image-data idx)
-        fill-target (flood idx image-data color)]
+        fill-target (flood idx image-data doc-width doc-height color)]
     (doseq [i fill-target]
       (visit-pixel i))))
 
@@ -386,6 +387,7 @@
                   zoom-factor (get-in @app [:zoom-factor])
                   [doc-x doc-y] (geometry/screen-to-doc x y zoom-factor)
                   doc-width (get-in @app [:main-app :canvas-width])
+                  doc-height (get-in @app [:main-app :canvas-height])
                   paint-tool (get-in @app [:tools :paint-tool])]
 
                   (when (= event-type "mousedown")
@@ -421,7 +423,7 @@
                             last-y ((get-in @guistate/transient-state [:mouse-down-pos]) 1)]
                         (visit-pixels-for-line-segment doc-x doc-y last-x last-y)))
                     (when (= paint-tool :fill)
-                      (visit-pixels-for-fill-tool doc-x doc-y (get-in @app [:main-app :image-data])))
+                      (visit-pixels-for-fill-tool doc-x doc-y (get-in @app [:main-app :image-data]) doc-width doc-height))
                     (when (= paint-tool :picker)
                       (pick-color app doc-x doc-y doc-width))
                     (when (and (= paint-tool :selection) (not (om/get-state owner :user-is-moving-selection)))
