@@ -96,8 +96,8 @@
 ;; =============================================================================
 ;; Pick color
 
-(defn pick-color [app doc-x doc-y]
-  (let [index (geometry/flatten-to-index doc-x doc-y 64)
+(defn pick-color [app doc-x doc-y doc-width]
+  (let [index (geometry/flatten-to-index doc-x doc-y doc-width)
         color (nth (get-in @app [:main-app :image-data]) index)]
     (om/update! app [:tools :paint-color] color)))
 
@@ -385,6 +385,7 @@
                   [x y] (unpack-event e)
                   zoom-factor (get-in @app [:zoom-factor])
                   [doc-x doc-y] (geometry/screen-to-doc x y zoom-factor)
+                  doc-width (get-in @app [:main-app :canvas-width])
                   paint-tool (get-in @app [:tools :paint-tool])]
 
                   (when (= event-type "mousedown")
@@ -422,7 +423,7 @@
                     (when (= paint-tool :fill)
                       (visit-pixels-for-fill-tool doc-x doc-y (get-in @app [:main-app :image-data])))
                     (when (= paint-tool :picker)
-                      (pick-color app doc-x doc-y))
+                      (pick-color app doc-x doc-y doc-width))
                     (when (and (= paint-tool :selection) (not (om/get-state owner :user-is-moving-selection)))
                       (make-selection app owner doc-x doc-y))
                     (when (and (= paint-tool :selection) (om/get-state owner :user-is-moving-selection))
