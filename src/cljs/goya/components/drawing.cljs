@@ -260,9 +260,9 @@
 
 ;; =============================================================================
 
-(defn visit-pixels-for-line-segment [x0 y0 x1 y1]
+(defn visit-pixels-for-line-segment [x0 y0 x1 y1 doc-width]
   (let [coords (bresenham/bresenham x0 y0 x1 y1)
-        flat-coords (vec (map #(geometry/flatten-point-to-index % 64) coords))]
+        flat-coords (vec (map #(geometry/flatten-point-to-index % doc-width) coords))]
     (reset! visited-pixels (vec (concat @visited-pixels flat-coords)))))
 
 (defn paint-pixel [coord pixel-size]
@@ -300,7 +300,7 @@
       (set! (.-fillStyle preview-context) paint-color)
       (paint-pixels-for-pencil-tool (conj active-pixels-since-last-event [doc-x doc-y]) pixel-size)
       (visit-pixel doc-index)
-      (visit-pixels-for-line-segment doc-x doc-y last-x last-y)
+      (visit-pixels-for-line-segment doc-x doc-y last-x last-y doc-canvas-width)
       (reset! guistate/transient-state
               (assoc @guistate/transient-state :last-mouse-pos [doc-x doc-y]))))
 
@@ -421,7 +421,7 @@
                     (when (= paint-tool :line)
                       (let [last-x ((get-in @guistate/transient-state [:mouse-down-pos]) 0)
                             last-y ((get-in @guistate/transient-state [:mouse-down-pos]) 1)]
-                        (visit-pixels-for-line-segment doc-x doc-y last-x last-y)))
+                        (visit-pixels-for-line-segment doc-x doc-y last-x last-y doc-width)))
                     (when (= paint-tool :fill)
                       (visit-pixels-for-fill-tool doc-x doc-y (get-in @app [:main-app :image-data]) doc-width doc-height))
                     (when (= paint-tool :picker)
