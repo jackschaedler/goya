@@ -15,6 +15,7 @@
             [goya.components.history :as history]
             [goya.components.canvas :as goyacanvas]
             [goya.components.drawing :as drawing]
+            [goya.components.keylistener :as keylistener]
             [goya.canvasdrawing :as canvasdrawing]
             [cljs.core.async :refer [put! chan <! alts!]]))
 
@@ -119,4 +120,10 @@
   {:target (. js/document (getElementById "canvas-watcher"))})
 
 
+(om/root
+  keylistener/key-listener-component
+  app/app-state
+  {:target (. js/document (getElementById "keylistener"))
+   :shared {:keychan keylistener/key-chan}})
 
+(events/listen js/document "keydown" #(put! keylistener/key-chan %))
