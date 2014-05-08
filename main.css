@@ -683,3 +683,29 @@ body
 {
   color: #727272;
 }
+
+
+.key-shortcut-list
+{
+  text-align: left;
+  padding: 5px;
+}
+
+.key-shortcut
+{
+  list-style: none;
+  margin-top: 6px;
+}
+
+.key-shortcut div
+{
+  display: inline;
+  text-align: center;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin-left: 3px;
+  margin-right: 3px;
+  border: 1px solid #626262;
+  color: #626262;
+  border-radius: 2px;
+}
