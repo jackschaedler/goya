@@ -224,7 +224,7 @@ body
   font-size: 12px;
   font-weight: normal;
   color: #727272;
-  text-align: center;
+  text-align: right;
   line-height: 28px;
   float: right;
   height: 30px;
@@ -232,6 +232,7 @@ body
   -moz-user-select: none;
   padding-right: 10px;
   padding-top: 2px;
+  width: 75px;
 }
 
 .canvas-zoom-info i
@@ -240,6 +241,8 @@ body
   font-size: 18px;
   cursor: pointer;
   height: 30px;
+  float: left;
+  padding-top: 5px;
 }
 
 .canvas-zoom-info i:hover
@@ -250,7 +253,6 @@ body
 .canvas-zoom-info span
 {
   margin-top: -2px;
-  margin-left: 5px;
 }
 
 

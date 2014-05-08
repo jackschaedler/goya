@@ -61,7 +61,7 @@
                           :onClick #(put! zoomchan :zoom-out)})
             (omdom/i #js {:className "icon-zoom-in"
                           :onClick #(put! zoomchan :zoom-in)})
-            (str (* 100 (get-in app [:zoom-factor])) "%"))))))
+            (str (get-in app [:zoom-factor]) "x"))))))
 
 
 (defn canvas-dimensions-component [app owner]
