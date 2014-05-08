@@ -1,6 +1,7 @@
 (ns goya.components.keylistener
   (:require-macros [cljs.core.async.macros :refer [go]])
 	(:require [goya.components.canvastools :as canvastools]
+            [goya.timemachine :as timemachine]
             [om.core :as om :include-macros true]
             [om.dom :as omdom :include-macros true]
             [cljs.core.async :refer [put! chan <! alts!]]))
@@ -32,6 +33,7 @@
   (let [keyCode (.-keyCode event)
         metaKey (.-metaKey event)
         shiftKey (.-shiftKey event)
+        ctrlKey (.-ctrlKey event)
         handler (cond
                    (= keyCode G-KEY) #(canvastools/toggle-grid app)
                    (= keyCode W-KEY) #(canvastools/zoom-in app)
@@ -41,7 +43,12 @@
                    (= keyCode THREE-KEY) #(select-tool app :box)
                    (= keyCode FOUR-KEY) #(select-tool app :fill)
                    (= keyCode FIVE-KEY) #(select-tool app :picker)
-                   (= keyCode SIX-KEY) #(select-tool app :selection))]
+                   (= keyCode SIX-KEY) #(select-tool app :selection)
+                   (and (= keyCode Z-KEY) (or ctrlKey metaKey) shiftKey)
+                     #(timemachine/do-redo)
+                   (and (= keyCode Z-KEY) (or ctrlKey metaKey))
+                     #(timemachine/do-undo)
+                 )]
     (when-not (= handler nil) (handler app))))
 
 

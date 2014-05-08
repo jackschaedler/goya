@@ -25,16 +25,6 @@
 (enable-console-print!)
 
 
-(events/listen js/document "keydown"
-  #(let [event %
-         keyCode (.-keyCode event)
-         metaKey (.-metaKey event)
-         shiftKey (.-shiftKey event)]
-      (when (and (= keyCode 90) metaKey)
-        (when shiftKey (timemachine/do-redo))
-        (when-not shiftKey (timemachine/do-undo)))))
-
-
 ;; =============================================================================
 ;; This got out of hand before I got the hang of OM. Subsequent version will
 ;; place everything in a master component, so the app will ideally have one root
