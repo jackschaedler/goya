@@ -26,7 +26,7 @@
      {
        :title "Goya"
        :subtitle "pixel art studio"
-       :version "v0.0.4a"
+       :version "v0.0.5a"
      }
 
      :zoom-factor 6
