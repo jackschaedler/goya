@@ -15,6 +15,12 @@
           (omdom/div nil
              (str x ", " y))))))
 
+
+;; =============================================================================
+
+(defn toggle-grid [app]
+  (om/transact! app [:tools :grid-on] not))
+
 (defn grid-toggle-component [app owner]
   (reify
     om/IRender
@@ -23,7 +29,7 @@
               class-name (if is-active "grid-enabled" "grid-disabled")]
          (omdom/div #js {:className class-name}
          (omdom/i #js {:className "icon-grid"
-                       :onClick (fn [e] (om/transact! app [:tools :grid-on] not))}))))))
+                       :onClick #(toggle-grid app)}))))))
 
 
 ;; =============================================================================

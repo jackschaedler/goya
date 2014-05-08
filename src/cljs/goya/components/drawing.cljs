@@ -437,7 +437,7 @@
                       (clear-selection-state owner)
                       (om/transact! app
                         [:main-app :undo-history]
-                        #(conj % {:action (str "Moved pixels") :icon "move"})
+                        #(conj % {:action (str "Moved Pixels") :icon "move"})
                         :add-to-undo))
                     (commit-stroke app)
                     (reset! guistate/transient-state

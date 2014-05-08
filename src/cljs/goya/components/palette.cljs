@@ -47,6 +47,19 @@
         (om/build-all palette-entry-component palette {:init-state {:selectchan selectchan}})))))
 
 
+
+(defn set-paint-color [app color]
+  (om/update! app [:tools :paint-color] color))
+
+(defn add-color [app color]
+  (om/transact! app [:main-app :palette] #(conj % {:color color}))
+  (set-paint-color app color)
+  (om/transact! app
+                [:main-app :undo-history]
+                #(conj % {:action (str "Added Color: " color) :icon "droplet"})
+                :add-to-undo))
+
+
 (defn palette-component [app owner]
   (reify
     om/IInitState
@@ -59,19 +72,12 @@
       (let [addchan (om/get-state owner :addchan)
             selectchan (om/get-state owner :selectchan)]
         (go
-         (while true
-          (let [[v ch] (alts! [addchan selectchan])]
-            (when (= ch addchan)
-              (om/transact! app
-                            [:main-app :palette] #(conj % {:color v}))
-              (om/update! app
-                          [:tools :paint-color] v)
-              (om/transact! app
-                            [:main-app :undo-history]
-                            #(conj % {:action (str "Added Color: " v) :icon "droplet"})
-                            :add-to-undo))
-            (when (= ch selectchan)
-              (om/update! app [:tools :paint-color] v)))))))
+          (while true
+            (let [[v ch] (alts! [addchan selectchan])]
+              (when (= ch addchan)
+                (add-color app v))
+              (when (= ch selectchan)
+                (set-paint-color app v)))))))
 
     om/IRenderState
     (render-state [this {:keys [addchan selectchan]}]
