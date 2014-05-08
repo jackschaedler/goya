@@ -82,12 +82,12 @@
         y (quot mouse-y pixel-size)]
     [(* x pixel-size) (* y pixel-size)]))
 
-(defn visit-pixels-for-rect-tool [doc-x doc-y]
+(defn visit-pixels-for-rect-tool [doc-x doc-y doc-width]
   (let [[orig-x orig-y] (get-in @guistate/transient-state [:mouse-down-pos])
         [x y nx ny] (geometry/normalize-rect orig-x orig-y doc-x doc-y)]
     (doseq [dx (range x nx)]
       (doseq [dy (range y ny)]
-        (visit-pixel (geometry/flatten-to-index dx dy 64))))))
+        (visit-pixel (geometry/flatten-to-index dx dy doc-width))))))
 
 (defn unpack-event [event]
   [(.-offsetX event) (.-offsetY event)])
@@ -135,7 +135,7 @@
 
 (defn visit-pixels-for-fill-tool [doc-x doc-y image-data doc-width doc-height]
   (let [[orig-x orig-y] (get-in @guistate/transient-state [:mouse-down-pos])
-        idx (geometry/flatten-to-index orig-x orig-y 64)
+        idx (geometry/flatten-to-index orig-x orig-y doc-width)
         color (nth image-data idx)
         fill-target (flood idx image-data doc-width doc-height color)]
     (doseq [i fill-target]
@@ -211,14 +211,13 @@
         (.fillRect context x-with-offset y-with-offset pixel-size pixel-size)))))
 
 
-(defn clip-sub-image [image rect]
+(defn clip-sub-image [image rect doc-width]
   (let [[x1 y1 x2 y2] rect
         width (geometry/rect-width rect)
         height (geometry/rect-height rect)
-        main-image-width 64
         sub-image-indices(for [y (range y1 y2)
                                x (range x1 x2)
-                               :let [i (geometry/flatten-to-index x y main-image-width)]]
+                               :let [i (geometry/flatten-to-index x y doc-width)]]
                                i)
         sub-image-data (vec (map #(nth image %) sub-image-indices))]
       {:width width
@@ -235,12 +234,12 @@
   (om/set-state! owner :user-is-moving-selection false))
 
 
-(defn make-selection [app owner doc-x doc-y]
+(defn make-selection [app owner doc-x doc-y doc-width]
   (let [[orig-x orig-y] (get-in @guistate/transient-state [:mouse-down-pos])
         selection-rect (geometry/normalize-rect orig-x orig-y doc-x doc-y)
         main-image (get-in @app [:main-app :image-data])]
     (om/set-state! owner :selection selection-rect)
-    (om/set-state! owner :selection-image (clip-sub-image main-image selection-rect))))
+    (om/set-state! owner :selection-image (clip-sub-image main-image selection-rect doc-width))))
 
 
 (defn draw-selection [app owner]
@@ -417,7 +416,7 @@
                       (reset! guistate/transient-state
                               (assoc @guistate/transient-state :last-mouse-pos [])))
                     (when (= paint-tool :box)
-                      (visit-pixels-for-rect-tool doc-x doc-y))
+                      (visit-pixels-for-rect-tool doc-x doc-y doc-width))
                     (when (= paint-tool :line)
                       (let [last-x ((get-in @guistate/transient-state [:mouse-down-pos]) 0)
                             last-y ((get-in @guistate/transient-state [:mouse-down-pos]) 1)]
@@ -427,7 +426,7 @@
                     (when (= paint-tool :picker)
                       (pick-color app doc-x doc-y doc-width))
                     (when (and (= paint-tool :selection) (not (om/get-state owner :user-is-moving-selection)))
-                      (make-selection app owner doc-x doc-y))
+                      (make-selection app owner doc-x doc-y doc-width))
                     (when (and (= paint-tool :selection) (om/get-state owner :user-is-moving-selection))
                       (let [[xOff yOff] (om/get-state owner :mouse-offset-in-selection)
                             [x1 y1 x2 y2] (om/get-state owner :selection)
