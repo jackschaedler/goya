@@ -59,14 +59,13 @@
 
 
 (defn create-new-document [app owner]
-  (let [paint-color (get-in @app [:tools :paint-color])
-        old-image (get-in @app [:main-app :image-data])
-        ;; Hack- need to get proper size instead of hard coded number
-        new-image (assoc-all old-image (range 4096) paint-color)]
+  (let [old-image (get-in @app [:main-app :image-data])
+        new-image (assoc-all old-image (range (count old-image)) "#000000")]
+    (timemachine/forget-everything)
     (om/update! app [:main-app :image-data] new-image :new-document)
-    (om/transact! app
+    (om/update! app
                   [:main-app :undo-history]
-                  #(conj % {:action (str "Primed Canvas") :icon "doc-inv"}) :add-to-undo)))
+                  [{:action (str "Opened New Canvas") :icon "tag"}] :add-to-undo)))
 
 
 ;; =============================================================================

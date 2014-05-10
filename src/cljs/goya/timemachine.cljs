@@ -10,6 +10,9 @@
 (def app-future (atom []))
 
 
+(defn forget-everything []
+  (reset! app-future [])
+  (reset! app-history []))
 
 ;; =============================================================================
 
