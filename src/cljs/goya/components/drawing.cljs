@@ -82,12 +82,12 @@
         y (quot mouse-y pixel-size)]
     [(* x pixel-size) (* y pixel-size)]))
 
-(defn visit-pixels-for-rect-tool [doc-x doc-y]
+(defn visit-pixels-for-rect-tool [doc-x doc-y doc-width]
   (let [[orig-x orig-y] (get-in @guistate/transient-state [:mouse-down-pos])
         [x y nx ny] (geometry/normalize-rect orig-x orig-y doc-x doc-y)]
     (doseq [dx (range x nx)]
       (doseq [dy (range y ny)]
-        (visit-pixel (geometry/flatten-to-index dx dy 64))))))
+        (visit-pixel (geometry/flatten-to-index dx dy doc-width))))))
 
 (defn unpack-event [event]
   [(.-offsetX event) (.-offsetY event)])
@@ -96,8 +96,8 @@
 ;; =============================================================================
 ;; Pick color
 
-(defn pick-color [app doc-x doc-y]
-  (let [index (geometry/flatten-to-index doc-x doc-y 64)
+(defn pick-color [app doc-x doc-y doc-width]
+  (let [index (geometry/flatten-to-index doc-x doc-y doc-width)
         color (nth (get-in @app [:main-app :image-data]) index)]
     (om/update! app [:tools :paint-color] color)))
 
@@ -105,13 +105,14 @@
 ;; =============================================================================
 ;; The Ned Flanders function
 
-(defn neighborinos [idx image-data color]
+(defn neighborinos [idx image-data doc-width doc-height color]
   (let [left   (dec idx)
         right  (inc idx)
-        top    (- idx 64)
-        bottom (+ idx 64)
+        top    (- idx doc-width)
+        bottom (+ idx doc-width)
         result [left right top bottom]
-        valid-result (filter #(and (>= % 0) (< % 4096)) result)]
+        total-pixel-count (* doc-width doc-height)
+        valid-result (filter #(and (>= % 0) (< % total-pixel-count)) result)]
     (filter #(= (nth image-data %) color) valid-result)))
 
 
@@ -119,7 +120,7 @@
 ;; Credits to:
 ;; http://stevelosh.com/blog/2012/10/caves-of-clojure-07-1/
 
-(defn flood [idx image-data color]
+(defn flood [idx image-data doc-width doc-height color]
   (loop [connected #{}
          to-connect #{idx}]
     (if (empty? to-connect)
@@ -127,16 +128,16 @@
       (let [current (first to-connect)
             connected (conj connected current)
             to-connect (disj to-connect current)
-            candidates (set (neighborinos current image-data color))
+            candidates (set (neighborinos current image-data doc-width doc-height color))
             to-connect (sets/union to-connect (sets/difference candidates connected))]
         (recur connected to-connect)))))
 
 
-(defn visit-pixels-for-fill-tool [doc-x doc-y image-data]
+(defn visit-pixels-for-fill-tool [doc-x doc-y image-data doc-width doc-height]
   (let [[orig-x orig-y] (get-in @guistate/transient-state [:mouse-down-pos])
-        idx (geometry/flatten-to-index orig-x orig-y 64)
+        idx (geometry/flatten-to-index orig-x orig-y doc-width)
         color (nth image-data idx)
-        fill-target (flood idx image-data color)]
+        fill-target (flood idx image-data doc-width doc-height color)]
     (doseq [i fill-target]
       (visit-pixel i))))
 
@@ -179,11 +180,13 @@
 (defn paste-image [app owner doc-x doc-y sub-image]
   (let [main-image (get-in @app [:main-app :image-data])
         main-image-width (get-in @app [:main-app :canvas-width])
+        main-image-height (get-in @app [:main-app :canvas-height])
         pixels-in-sub-image (count (:image-data sub-image))
         indices (for [i (range 0 pixels-in-sub-image)
                       :let [x (mod i (:width sub-image))
                             y (quot i (:width sub-image))]]
-                      [(if (geometry/contains-point [0 0 63 63] [(+ x doc-x) (+ y doc-y)])
+                      [(if (geometry/contains-point [0 0 (- main-image-width 1) (- main-image-height 1)]
+                                                    [(+ x doc-x) (+ y doc-y)])
                            (geometry/flatten-to-index (+ x doc-x) (+ y doc-y) main-image-width)
                            :clipped)])
         flat-indices (vec (flatten (vec indices)))
@@ -210,14 +213,13 @@
         (.fillRect context x-with-offset y-with-offset pixel-size pixel-size)))))
 
 
-(defn clip-sub-image [image rect]
+(defn clip-sub-image [image rect doc-width]
   (let [[x1 y1 x2 y2] rect
         width (geometry/rect-width rect)
         height (geometry/rect-height rect)
-        main-image-width 64
         sub-image-indices(for [y (range y1 y2)
                                x (range x1 x2)
-                               :let [i (geometry/flatten-to-index x y main-image-width)]]
+                               :let [i (geometry/flatten-to-index x y doc-width)]]
                                i)
         sub-image-data (vec (map #(nth image %) sub-image-indices))]
       {:width width
@@ -234,12 +236,12 @@
   (om/set-state! owner :user-is-moving-selection false))
 
 
-(defn make-selection [app owner doc-x doc-y]
+(defn make-selection [app owner doc-x doc-y doc-width]
   (let [[orig-x orig-y] (get-in @guistate/transient-state [:mouse-down-pos])
         selection-rect (geometry/normalize-rect orig-x orig-y doc-x doc-y)
         main-image (get-in @app [:main-app :image-data])]
     (om/set-state! owner :selection selection-rect)
-    (om/set-state! owner :selection-image (clip-sub-image main-image selection-rect))))
+    (om/set-state! owner :selection-image (clip-sub-image main-image selection-rect doc-width))))
 
 
 (defn draw-selection [app owner]
@@ -259,9 +261,9 @@
 
 ;; =============================================================================
 
-(defn visit-pixels-for-line-segment [x0 y0 x1 y1]
+(defn visit-pixels-for-line-segment [x0 y0 x1 y1 doc-width]
   (let [coords (bresenham/bresenham x0 y0 x1 y1)
-        flat-coords (vec (map #(geometry/flatten-point-to-index % 64) coords))]
+        flat-coords (vec (map #(geometry/flatten-point-to-index % doc-width) coords))]
     (reset! visited-pixels (vec (concat @visited-pixels flat-coords)))))
 
 (defn paint-pixel [coord pixel-size]
@@ -299,7 +301,7 @@
       (set! (.-fillStyle preview-context) paint-color)
       (paint-pixels-for-pencil-tool (conj active-pixels-since-last-event [doc-x doc-y]) pixel-size)
       (visit-pixel doc-index)
-      (visit-pixels-for-line-segment doc-x doc-y last-x last-y)
+      (visit-pixels-for-line-segment doc-x doc-y last-x last-y doc-canvas-width)
       (reset! guistate/transient-state
               (assoc @guistate/transient-state :last-mouse-pos [doc-x doc-y]))))
 
@@ -385,6 +387,8 @@
                   [x y] (unpack-event e)
                   zoom-factor (get-in @app [:zoom-factor])
                   [doc-x doc-y] (geometry/screen-to-doc x y zoom-factor)
+                  doc-width (get-in @app [:main-app :canvas-width])
+                  doc-height (get-in @app [:main-app :canvas-height])
                   paint-tool (get-in @app [:tools :paint-tool])]
 
                   (when (= event-type "mousedown")
@@ -414,17 +418,17 @@
                       (reset! guistate/transient-state
                               (assoc @guistate/transient-state :last-mouse-pos [])))
                     (when (= paint-tool :box)
-                      (visit-pixels-for-rect-tool doc-x doc-y))
+                      (visit-pixels-for-rect-tool doc-x doc-y doc-width))
                     (when (= paint-tool :line)
                       (let [last-x ((get-in @guistate/transient-state [:mouse-down-pos]) 0)
                             last-y ((get-in @guistate/transient-state [:mouse-down-pos]) 1)]
-                        (visit-pixels-for-line-segment doc-x doc-y last-x last-y)))
+                        (visit-pixels-for-line-segment doc-x doc-y last-x last-y doc-width)))
                     (when (= paint-tool :fill)
-                      (visit-pixels-for-fill-tool doc-x doc-y (get-in @app [:main-app :image-data])))
+                      (visit-pixels-for-fill-tool doc-x doc-y (get-in @app [:main-app :image-data]) doc-width doc-height))
                     (when (= paint-tool :picker)
-                      (pick-color app doc-x doc-y))
+                      (pick-color app doc-x doc-y doc-width))
                     (when (and (= paint-tool :selection) (not (om/get-state owner :user-is-moving-selection)))
-                      (make-selection app owner doc-x doc-y))
+                      (make-selection app owner doc-x doc-y doc-width))
                     (when (and (= paint-tool :selection) (om/get-state owner :user-is-moving-selection))
                       (let [[xOff yOff] (om/get-state owner :mouse-offset-in-selection)
                             [x1 y1 x2 y2] (om/get-state owner :selection)

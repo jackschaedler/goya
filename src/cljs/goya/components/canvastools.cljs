@@ -2,6 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
 	(:require [om.core :as om :include-macros true]
             [om.dom :as omdom :include-macros true]
+            [clojure.string :as string]
             [cljs.core.async :refer [put! chan <! alts!]]))
 
 
@@ -61,20 +62,48 @@
                           :onClick #(put! zoomchan :zoom-out)})
             (omdom/i #js {:className "icon-zoom-in"
                           :onClick #(put! zoomchan :zoom-in)})
-            (str (* 100 (get-in app [:zoom-factor])) "%"))))))
+            (str (get-in app [:zoom-factor]) "x"))))))
+
+
+(defn string-to-dimensions [string]
+  (let [tokens (string/split string " ")
+        width (js/parseInt (tokens 0))
+        height (js/parseInt (tokens 2))]
+    [width height]))
+
+
+(defn change-canvas-size [app owner]
+  (let [canvas-size-chooser (om/get-node owner "canvas-size-chooser")
+        selected-option (.-value canvas-size-chooser)
+        [width height] (string-to-dimensions selected-option)
+        total-num-pixels (* width height)
+        new-image-data (vec (take total-num-pixels (repeat "#000000")))]
+    (om/update! app [:main-app :canvas-width] width)
+    (om/update! app [:main-app :canvas-height] height)
+    (om/update! app [:main-app :image-data] new-image-data)
+    (om/transact! app
+                  [:main-app :undo-history]
+                  #(conj % {:action (str "Resized Canvas to " selected-option) :icon "scissors"}) :add-to-undo)))
 
 
 (defn canvas-dimensions-component [app owner]
   (reify
     om/IRender
       (render [this]
-        (omdom/div
-          #js {:className "canvas-info-text"}
-          (str
-            "Canvas: "
-            (get-in app [:main-app :canvas-width])
-            " x "
-            (get-in app [:main-app :canvas-height]))))))
+        (let [canvas-width (get-in app [:main-app :canvas-width])
+              canvas-height (get-in app [:main-app :canvas-height])
+              current-value (str canvas-width " x " canvas-height)]
+          (omdom/div
+            #js {:className "canvas-info-text"}
+            (omdom/span nil "Size:")
+            (omdom/select #js {:className "canvas-size-select"
+                               :onChange #(change-canvas-size app owner)
+                               :value current-value
+                               :ref "canvas-size-chooser"}
+               (omdom/option #js {:value "64 x 64"} "64 x 64")
+               (omdom/option #js {:value "32 x 32"} "32 x 32")
+               (omdom/option #js {:value "24 x 24"} "24 x 24")
+               (omdom/option #js {:value "16 x 16"} "16 x 16")))))))
 
 
 (defn canvas-info-component [app owner]

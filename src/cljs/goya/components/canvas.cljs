@@ -51,6 +51,7 @@
               default-mini-canvas-zoom 2]
         (omdom/canvas
            #js {:id "minimap-canvas"
+                :className "minimap-canvas-elem"
                 :width (* default-mini-canvas-zoom width)
                 :height (* default-mini-canvas-zoom height)
                 :ref "minimap-canvas-ref"})))))

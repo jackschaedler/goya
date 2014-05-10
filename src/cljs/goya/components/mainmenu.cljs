@@ -30,19 +30,21 @@
 
 (defn export-history-animation [owner]
   (let [render-canvas (. js/document (createElement "canvas"))
-        width (get-in @app/app-state [:main-app :canvas-width])
-        height (get-in @app/app-state [:main-app :canvas-height])
-        zoom-factor (get-in @app/app-state [:zoom-factor])
+        max-width 64
+        max-height 64
+        zoom-factor 2
         app-history @timemachine/app-history
         gif (js/GIF. #js {:workers 2
                           :quality 10
-                          :width (* width zoom-factor)
-                          :height (* height zoom-factor)
+                          :width (* max-width zoom-factor)
+                          :height (* max-height zoom-factor)
                           :workerScript "./gifjs/dist/gif.worker.js"})]
     (om/set-state! owner :is-processing true)
     (om/set-state! owner :progress 0)
     (dotimes [x (count app-history)]
       (let [history-snapshot (nth app-history x)
+            width (get-in history-snapshot [:canvas-width])
+            height (get-in history-snapshot [:canvas-height])
             image-data (get-in history-snapshot [:image-data])
             context (.getContext render-canvas "2d")]
         (canvasdrawing/draw-image-to-canvas image-data render-canvas width height zoom-factor)
@@ -57,14 +59,13 @@
 
 
 (defn create-new-document [app owner]
-  (let [paint-color (get-in @app [:tools :paint-color])
-        old-image (get-in @app [:main-app :image-data])
-        ;; Hack- need to get proper size instead of hard coded number
-        new-image (assoc-all old-image (range 4096) paint-color)]
+  (let [old-image (get-in @app [:main-app :image-data])
+        new-image (assoc-all old-image (range (count old-image)) "#000000")]
+    (timemachine/forget-everything)
     (om/update! app [:main-app :image-data] new-image :new-document)
-    (om/transact! app
+    (om/update! app
                   [:main-app :undo-history]
-                  #(conj % {:action (str "Primed Canvas") :icon "doc-inv"}) :add-to-undo)))
+                  [{:action (str "Opened New Canvas") :icon "tag"}] :add-to-undo)))
 
 
 ;; =============================================================================

@@ -19,14 +19,14 @@
        :canvas-height 64
 
        :undo-history
-         [{:action "Opened New Document" :icon "tag"}]
+         [{:action "Opened New Canvas" :icon "tag"}]
       }
 
      :info
      {
        :title "Goya"
        :subtitle "pixel art studio"
-       :version "v0.0.5a"
+       :version "v0.0.6a"
      }
 
      :zoom-factor 6
@@ -41,7 +41,7 @@
      :history-menu-items{:undo {:text "Undo"}
                          :redo {:text "Redo"}}
 
-     :main-menu-items{:new-document {:text "Prime Canvas" :icon "icon-doc-inv" :command :new-doc}
+     :main-menu-items{:new-document {:text "New Canvas" :icon "icon-tag" :command :new-doc}
                       :inspiration {:text "Inspiration from the Masters" :icon "icon-cloud-flash" :command :inspire}
                       :export-document {:text "Export Canvas" :icon "icon-download" :command :export-doc}
                       :export-history-animation {:text "Export History as Animation" :icon "icon-video" :command :export-history-animation}}}))
