@@ -149,6 +149,26 @@ body
   -moz-user-select: none;
 }
 
+.canvas-info-text .canvas-size-select
+{
+  background: transparent;
+  margin-top: 5px;
+  color: #727272;
+  border: 0;
+  border-radius: 0;
+  padding: 4px;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: window;
+  width: 60px;
+}
+
+.canvas-info-text .canvas-size-select:hover
+{
+  color: #b2b2b2;
+}
+
 .canvas-info-text i
 {
   padding-right: 10px;
@@ -204,7 +224,7 @@ body
 {
   position: absolute;
   left: 50px;
-  top: 250px;
+  top: 253px;
   width: 128px;
   height: 128px;
   font-family: "Futura";
