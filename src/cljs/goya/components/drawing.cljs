@@ -180,11 +180,13 @@
 (defn paste-image [app owner doc-x doc-y sub-image]
   (let [main-image (get-in @app [:main-app :image-data])
         main-image-width (get-in @app [:main-app :canvas-width])
+        main-image-height (get-in @app [:main-app :canvas-height])
         pixels-in-sub-image (count (:image-data sub-image))
         indices (for [i (range 0 pixels-in-sub-image)
                       :let [x (mod i (:width sub-image))
                             y (quot i (:width sub-image))]]
-                      [(if (geometry/contains-point [0 0 63 63] [(+ x doc-x) (+ y doc-y)])
+                      [(if (geometry/contains-point [0 0 (- main-image-width 1) (- main-image-height 1)]
+                                                    [(+ x doc-x) (+ y doc-y)])
                            (geometry/flatten-to-index (+ x doc-x) (+ y doc-y) main-image-width)
                            :clipped)])
         flat-indices (vec (flatten (vec indices)))
