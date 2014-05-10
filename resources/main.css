@@ -81,18 +81,6 @@ body
 /* Top Level Containers */
 /************************************************************/
 
-.PaletteContainer
-{
-  position: absolute;
-  width: 500px;
-  top: 0px;
-  left: 280px;
-  background: #2a2a2a;
-  padding: 5px;
-  box-shadow: 1px 1px 2px 2px rgba(0,0,0,0.3);
-}
-
-
 .TimeMachineContainer
 {
   position: absolute;
@@ -121,11 +109,13 @@ body
 
 .CanvasInfoContainer
 {
-  border-top: 1px #111111 solid;
+  position: absolute;
+  top: 317px;
+  border-top: 1px #333333 solid;
   border-bottom: 1px #333333 solid;
   background: #222222;
-  margin-bottom: 0px;
   height: 200px;
+  width: 230px;
 }
 
 
@@ -180,7 +170,7 @@ body
   /** TODO: Gross, I know **/
   position: absolute;
   left: 38px;
-  top: 385px;
+  top: 485px;
   width: 100px;
   font-family: "Futura";
   font-size: 12px;
@@ -207,7 +197,7 @@ body
 {
   position: absolute;
   left: 7px;
-  top: 390px;
+  top: 490px;
   width: 30px;
   font-family: "Futura";
   font-size: 20px;
@@ -224,7 +214,7 @@ body
 {
   position: absolute;
   left: 50px;
-  top: 253px;
+  top: 353px;
   width: 128px;
   height: 128px;
   font-family: "Futura";
@@ -305,10 +295,10 @@ body
 
 .tools-menu
 {
-  width: 100%;
+  position: absolute;
+  width: 230px;
+  top: 70px;
   height: 50px;
-  margin-top: 30px;
-  margin-bottom: 25px;
   margin-left: 0px;
   margin-right: 0px;
   padding-left: 3px;
@@ -369,8 +359,8 @@ body
 
 .main-menu
 {
-  width: 100%;
-  margin-top: 0px;
+  position: absolute;
+  top: 519px;
 }
 
 .main-menu-item
@@ -505,15 +495,24 @@ body
 /* Palette */
 /************************************************************/
 
+.PaletteContainer
+{
+  position: absolute;
+  top: 185px;
+  width: 230px;
+  height: 132px;
+  overflow-y: scroll;
+  margin-left: 0px;
+  background: #161616;
+}
+
 .palette_entry
 {
-  width: 25px;
-  height: 25px;
-  margin: 3px;
+  width: 15px;
+  height: 15px;
+  margin: 2px;
   float: left;
   cursor: pointer;
-
-  box-shadow: 2px 2px 0px 0px rgba(1,1,1,0.5);
 }
 
 .palette_entry:hover
@@ -523,21 +522,20 @@ body
 
 .palette_adder_entry
 {
-  width: 120px;
-  height: 30px;
-  float: left;
-  margin-right: 4px;
-  background: #2a2a2a;
+  clear: both;
+  width: 230px;
+  height: 32px;
+  margin-bottom: 4px;
+  background: #323232;
 }
 
 .palette_adder_entry_input
 {
   width: 25px;
   height: 25px;
-  float: left;
-  cursor: pointer;
-  padding: 0px;
   margin: 4px;
+  cursor: pointer;
+  float: left;
 }
 
 .palette_adder_entry_button
@@ -546,10 +544,10 @@ body
   font-size: 12px;
   font-weight: normal;
   color: #c2c2c2;
-  background: #323232;
-  text-align: center;
-  line-height: 30px;
-  height: 30px;
+  text-align: left;
+  padding-left: 85px;
+  line-height: 32px;
+  height: 32px;
   -webkit-user-select: none;
   -moz-user-select: none;
   cursor: pointer;
@@ -684,6 +682,8 @@ body
 
 .about-info
 {
+  position: absolute;
+  top: 640px;
   font-family: "Futura";
   font-size: 12px;
   font-weight: normal;
@@ -691,7 +691,6 @@ body
   text-align: center;
   padding-left: 10px;
   padding-right: 10px;
-  padding-top: 120px;
 }
 
 
