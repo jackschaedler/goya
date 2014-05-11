@@ -20,7 +20,7 @@
       (omdom/div
        #js {:className (class-name-for-entry current-color (:color entry))
             :style #js {:backgroundColor (:color entry)}
-            :onClick (fn [e] (put! selectchan (:color @entry)))}
+            :onClick #(put! selectchan (:color @entry))}
        (:text entry)))))
 
 
@@ -34,13 +34,11 @@
          #js {:className "palette_adder_entry_input"
               :id "palette_adder_input"
               :type "color"
-              :onKeyDown (fn [e]
-                           (when (= (.-keyCode e) 13)
-                             (put! addchan (.-value (dom/getElement "palette_adder_input")))))})
+              :onKeyDown #(when (= (.-keyCode %) 13)
+                            (put! addchan (.-value (dom/getElement "palette_adder_input"))))})
         (omdom/div
          #js {:className "palette_adder_entry_button"
-              :onClick (fn [e]
-                         (put! addchan (.-value (dom/getElement "palette_adder_input"))))}
+              :onClick #(put! addchan (.-value (dom/getElement "palette_adder_input")))}
          "Add Color")))))
 
 
