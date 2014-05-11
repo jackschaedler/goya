@@ -59,12 +59,16 @@
   (om/update! app [:tools :paint-color] color))
 
 (defn add-color [app color]
-  (om/transact! app [:main-app :palette] #(conj % {:color color}))
+  (let [palette (get-in @app [:main-app :palette])
+        color-is-new (not (some #(= {:color color} %) palette))]
+  (when color-is-new
+    (om/transact! app [:main-app :palette] #(conj % {:color color})))
   (set-paint-color app color)
-  (om/transact! app
-                [:main-app :undo-history]
-                #(conj % {:action (str "Added Color: " color) :icon "droplet"})
-                :add-to-undo))
+  (when color-is-new
+    (om/transact! app
+                  [:main-app :undo-history]
+                  #(conj % {:action (str "Added Color: " color) :icon "droplet"})
+                  :add-to-undo))))
 
 
 (defn palette-component [app owner]
