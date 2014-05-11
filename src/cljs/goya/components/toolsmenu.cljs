@@ -66,5 +66,4 @@
                                                          :css-class "icon-pipette"}})
         (om/build basic-tool-component app {:init-state {:toolchan toolchan
                                                          :tool-name :selection
-                                                         :css-class "icon-move"}})
-        (om/build color-tool-component app)))))
+                                                         :css-class "icon-move"}})))))
