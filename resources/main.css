@@ -501,23 +501,30 @@ body
   top: 185px;
   width: 230px;
   height: 132px;
-  overflow-y: scroll;
   margin-left: 0px;
   background: #161616;
+}
+
+.palette-colors
+{
+  margin-left: 3px;
+  height: 100px;
+  overflow-y: scroll;
 }
 
 .palette_entry
 {
   width: 15px;
   height: 15px;
-  margin: 2px;
+  margin: 0px;
   float: left;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .palette_entry:hover
 {
-  outline: 2px #d2d2d2 solid;
+  border: 2px solid #ffffff;
 }
 
 .palette_adder_entry

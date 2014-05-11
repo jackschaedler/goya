@@ -43,7 +43,7 @@
   (reify
     om/IRenderState
     (render-state [this {:keys [selectchan]}]
-      (apply omdom/div nil
+      (apply omdom/div #js {:className "palette-colors"}
         (om/build-all palette-entry-component palette {:init-state {:selectchan selectchan}})))))
 
 
