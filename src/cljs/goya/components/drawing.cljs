@@ -5,6 +5,7 @@
             [goog.events :as events]
             [goya.components.bresenham :as bresenham]
             [goya.components.geometry :as geometry]
+            [goya.components.palette :as palette]
             [goya.guistate :as guistate]
             [clojure.set :as sets]
             [cljs.core.async :refer [put! chan <! alts!]]))
@@ -99,7 +100,7 @@
 (defn pick-color [app doc-x doc-y doc-width]
   (let [index (geometry/flatten-to-index doc-x doc-y doc-width)
         color (nth (get-in @app [:main-app :image-data]) index)]
-    (om/update! app [:tools :paint-color] color)))
+    (palette/add-color app color)))
 
 
 ;; =============================================================================
