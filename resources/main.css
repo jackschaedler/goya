@@ -527,6 +527,11 @@ body
   border: 2px solid #ffffff;
 }
 
+.palette_entry_selected
+{
+  border: 2px solid #ffffff;
+}
+
 .palette_adder_entry
 {
   clear: both;

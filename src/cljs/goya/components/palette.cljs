@@ -7,13 +7,18 @@
             [cljs.core.async :refer [put! chan <! alts!]]))
 
 
+(defn class-name-for-entry [current-color color]
+  (if (= current-color color)
+    (str "palette_entry" " " "palette_entry_selected")
+    "palette_entry"))
+
 
 (defn palette-entry-component [entry owner]
   (reify
     om/IRenderState
-    (render-state [this {:keys [selectchan]}]
+    (render-state [this {:keys [selectchan current-color]}]
       (omdom/div
-       #js {:className "palette_entry"
+       #js {:className (class-name-for-entry current-color (:color entry))
             :style #js {:backgroundColor (:color entry)}
             :onClick (fn [e] (put! selectchan (:color @entry)))}
        (:text entry)))))
@@ -39,12 +44,16 @@
          "Add Color")))))
 
 
-(defn palette-current-colors-component [palette owner]
+(defn palette-current-colors-component [app owner]
   (reify
     om/IRenderState
     (render-state [this {:keys [selectchan]}]
-      (apply omdom/div #js {:className "palette-colors"}
-        (om/build-all palette-entry-component palette {:init-state {:selectchan selectchan}})))))
+      (let [current-color (get-in app [:tools :paint-color])]
+        (apply omdom/div #js {:className "palette-colors"}
+          (om/build-all palette-entry-component
+                        (:palette app)
+                        {:init-state {:selectchan selectchan}
+                         :state {:current-color current-color}}))))))
 
 
 
@@ -83,5 +92,7 @@
     (render-state [this {:keys [addchan selectchan]}]
       (omdom/div #js {:className "palette"}
         (om/build palette-adder-component app {:init-state {:addchan addchan}})
-        (om/build palette-current-colors-component (get-in app [:main-app :palette])
+        (om/build palette-current-colors-component
+                  {:palette (get-in app [:main-app :palette])
+                   :tools (get-in app [:tools])}
                   {:init-state {:selectchan selectchan}})))))
