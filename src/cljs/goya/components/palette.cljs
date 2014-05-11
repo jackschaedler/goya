@@ -21,7 +21,7 @@
        #js {:className (class-name-for-entry current-color (:color entry))
             :style #js {:backgroundColor (:color entry)}
             :onClick #(put! selectchan (:color @entry))}
-       (:text entry)))))
+       ""))))
 
 
 (defn palette-adder-component [app owner]
