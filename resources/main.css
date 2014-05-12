@@ -89,7 +89,7 @@ body
   top: 0px;
   right: 0px;
   background: #2a2a2a;
-  overflow-y: scroll;
+  overflow: auto;
   box-shadow: 3px 3px 5px 5px rgba(0,0,0,0.3);
 }
 
@@ -509,7 +509,7 @@ body
 {
   margin-left: 3px;
   height: 100px;
-  overflow-y: scroll;
+  overflow: auto;
 }
 
 .palette_entry
