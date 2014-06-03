@@ -186,6 +186,23 @@ body
   -moz-user-select: none;
 }
 
+.frame-num-indicator
+{
+  position: absolute;
+  left: 70px;
+  top: 485px;
+  width: 150px;
+  font-family: "Futura";
+  font-size: 12px;
+  font-weight: normal;
+  color: #727272;
+  text-align: right;
+  line-height: 30px;
+  height: 30px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
 .grid-enabled
 {
   color: #b2b2b2;
@@ -698,7 +715,7 @@ body
 .about-info
 {
   position: absolute;
-  top: 640px;
+  top: 720px;
   font-family: "Futura";
   font-size: 12px;
   font-weight: normal;
@@ -751,4 +768,126 @@ body
   border: 1px solid #626262;
   color: #626262;
   border-radius: 2px;
+}
+
+
+.animation-controls
+{
+  position: absolute;
+  width: 600px;
+  height: 75px;
+  top: 0px;
+  left: 275px;
+  background: #212121;
+  box-shadow: 1px 1px 2px 2px rgba(0,0,0,0.3);
+
+  font-family: "Futura";
+  font-size: 12px;
+  font-weight: normal;
+  color: #a2a2a2;
+}
+
+.animation-controls .animation-frames
+{
+  position: absolute;
+  width: 595px;
+  height: 55px;
+  top: 0px;
+  overflow-x: auto;
+  padding-left: 5px;
+  background: #212121;
+  white-space: nowrap;
+}
+
+.animation-controls .animation-frames .animation-frame
+{
+  float: left;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  margin-left: 3px;
+  background: #212121;
+  line-height: 30px;
+  text-align: center;
+  border: 1px solid #424242;
+  cursor: pointer;
+}
+
+.animation-controls .animation-frames .animation-frame:hover
+{
+  background: #121212;
+  color: #ffffff;
+  border: 1px solid #929292;
+}
+
+.animation-controls .animation-frames .animation-frame-selected
+{
+  background: #121212;
+  color: #ffffff;
+  border: 1px solid #929292;
+}
+
+.animation-controls .animation-frames .animation-frame-onion-skin
+{
+  background: #121212;
+  color: #ffffff;
+  border: 1px dashed #929292;
+}
+
+.animation-controls .animation-frames .animation-frame .frame-number
+{
+  line-height: 5px;
+  text-align: left;
+  margin-top: 4px;
+  margin-left: 2px;
+  font-size: 8px;
+}
+
+.animation-controls .animation-tools
+{
+  background: #2a2a2a;
+  position: absolute;
+  width: 600px;
+  height: 75px;
+}
+
+.animation-controls .animation-tools-bar
+{
+  height: 20px;
+  margin-top: 54px;
+}
+
+.animation-controls .animation-tools .animation-icon
+{
+  color: #626262;
+  float: left;
+  padding-left: 2px;
+  padding-right: 2px;
+  height: 22px;
+  margin-right: -1px;
+  line-height: 22px;
+  font-size: 16px;
+  padding-top: 2px;
+  cursor: pointer;
+}
+
+
+.animation-controls .animation-tools .animation-icon:hover
+{
+  color: #b2b2b2;
+}
+
+.animation-controls .animation-tools .animation-icon-selected
+{
+  color: #d2d2d2;
+}
+
+.animation-controls .animation-tools .animation-info
+{
+  float: left;
+  color: #929292;
+  padding-left: 7px;
+  padding-right: 7px;
+  height: 22px;
+  line-height: 22px;
 }

@@ -4,6 +4,7 @@
             [om.dom :as omdom :include-macros true]
             [goog.events :as events]
             [goya.components.bresenham :as bresenham]
+            [goya.components.canvas :as canvas]
             [goya.components.geometry :as geometry]
             [goya.components.palette :as palette]
             [goya.guistate :as guistate]
@@ -45,12 +46,12 @@
 
 (defn commit-stroke [app]
   (let [paint-color (get-in @app [:tools :paint-color])
-        old-image (get-in @app [:main-app :image-data])
+        old-image (canvas/get-current-pixels @app)
         new-image (assoc-all old-image @visited-pixels paint-color)
         undo-list (get-in @app [:main-app :undo-history])
         paint-tool (get-in @app [:tools :paint-tool])]
 
-    (om/update! app [:main-app :image-data] (vec new-image))
+    (canvas/set-current-pixels app (vec new-image))
 
     (when (= paint-tool :brush)
       (om/transact! app
@@ -99,7 +100,7 @@
 
 (defn pick-color [app doc-x doc-y doc-width]
   (let [index (geometry/flatten-to-index doc-x doc-y doc-width)
-        color (nth (get-in @app [:main-app :image-data]) index)]
+        color (nth (canvas/get-current-pixels @app) index)]
     (palette/add-color app color)))
 
 
@@ -179,7 +180,7 @@
 
 
 (defn paste-image [app owner doc-x doc-y sub-image]
-  (let [main-image (get-in @app [:main-app :image-data])
+  (let [main-image (canvas/get-current-pixels @app)
         main-image-width (get-in @app [:main-app :canvas-width])
         main-image-height (get-in @app [:main-app :canvas-height])
         pixels-in-sub-image (count (:image-data sub-image))
@@ -193,7 +194,7 @@
         flat-indices (vec (flatten (vec indices)))
         indices-to-colors (zipmap flat-indices (:image-data sub-image))
         new-image (assoc-map main-image indices-to-colors)]
-    (om/update! app [:main-app :image-data] (vec new-image))))
+    (canvas/set-current-pixels app (vec new-image))))
 
 
 (defn blit-sub-image [app sub-image xoff yoff]
@@ -240,7 +241,7 @@
 (defn make-selection [app owner doc-x doc-y doc-width]
   (let [[orig-x orig-y] (get-in @guistate/transient-state [:mouse-down-pos])
         selection-rect (geometry/normalize-rect orig-x orig-y doc-x doc-y)
-        main-image (get-in @app [:main-app :image-data])]
+        main-image (canvas/get-current-pixels @app)]
     (om/set-state! owner :selection selection-rect)
     (om/set-state! owner :selection-image (clip-sub-image main-image selection-rect doc-width))))
 
@@ -425,7 +426,7 @@
                             last-y ((get-in @guistate/transient-state [:mouse-down-pos]) 1)]
                         (visit-pixels-for-line-segment doc-x doc-y last-x last-y doc-width)))
                     (when (= paint-tool :fill)
-                      (visit-pixels-for-fill-tool doc-x doc-y (get-in @app [:main-app :image-data]) doc-width doc-height))
+                      (visit-pixels-for-fill-tool doc-x doc-y (canvas/get-current-pixels @app) doc-width doc-height))
                     (when (= paint-tool :picker)
                       (pick-color app doc-x doc-y doc-width))
                     (when (and (= paint-tool :selection) (not (om/get-state owner :user-is-moving-selection)))

@@ -8,6 +8,7 @@
             [goya.timemachine :as timemachine]
             [goya.guistate :as guistate]
             [goya.previewstate :as previewstate]
+            [goya.components.animation :as animation]
             [goya.components.mainmenu :as mainmenu]
             [goya.components.toolsmenu :as toolsmenu]
             [goya.components.canvastools :as canvastools]
@@ -79,6 +80,11 @@
   guistate/transient-state
   {:target (. js/document (getElementById "cursor-pos-indicator"))})
 
+(om/root
+  canvastools/frame-num-component
+  previewstate/preview-state
+  {:target (. js/document (getElementById "frame-num-indicator"))})
+
 
 (om/root
   canvastools/grid-toggle-component
@@ -108,6 +114,12 @@
   drawing/canvas-painting-component
   app/app-state
   {:target (. js/document (getElementById "canvas-watcher"))})
+
+
+(om/root
+  animation/animation-controls-component
+  app/app-state
+  {:target (. js/document (getElementById "animation-controls"))})
 
 
 (om/root

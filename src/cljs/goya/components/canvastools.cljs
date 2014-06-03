@@ -19,6 +19,17 @@
 
 ;; =============================================================================
 
+(defn frame-num-component [app owner]
+  (reify
+    om/IRender
+      (render [this]
+        (let [frame (get-in app [:main-app :editing-frame])
+              num-frames (count (get-in app [:main-app :animation]))]
+          (omdom/div nil
+             (str "Frame " (inc frame) "/" num-frames))))))
+
+;; =============================================================================
+
 (defn toggle-grid [app]
   (om/transact! app [:tools :grid-on] not))
 
@@ -77,10 +88,12 @@
         selected-option (.-value canvas-size-chooser)
         [width height] (string-to-dimensions selected-option)
         total-num-pixels (* width height)
-        new-image-data (vec (take total-num-pixels (repeat "#000000")))]
+        new-image-data (vec (take total-num-pixels (repeat "#000000")))
+        animation (get-in @app [:main-app :animation])
+        new-animation [{:image-data new-image-data}]]
     (om/update! app [:main-app :canvas-width] width)
     (om/update! app [:main-app :canvas-height] height)
-    (om/update! app [:main-app :image-data] new-image-data)
+    (om/update! app [:main-app :animation] new-animation)
     (om/transact! app
                   [:main-app :undo-history]
                   #(conj % {:action (str "Resized Canvas to " selected-option) :icon "scissors"}) :add-to-undo)))

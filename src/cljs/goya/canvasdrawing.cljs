@@ -23,6 +23,42 @@
         (.fillRect context pix-x pix-y pixel-size pixel-size)))))
 
 
+(defn draw-spritesheet-to-canvas [animation canvas frame-width frame-height]
+  (let [context (.getContext canvas "2d")
+        frame-count (count animation)
+        canvas-width (* frame-width frame-count)
+        canvas-height frame-height]
+    (set! (.-width canvas) canvas-width)
+    (set! (.-height canvas) canvas-height)
+    (dotimes [x frame-count]
+      (let [frame (nth animation x)
+            pixels (:image-data frame)]
+        (dotimes [i (count pixels)]
+          (let [x-offset (* x frame-width)
+                pix-x (+ (mod i frame-width) x-offset)
+                pix-y (quot i frame-height)
+                color (nth pixels i)]
+            (set! (.-fillStyle context) color)
+            (.fillRect context pix-x pix-y 1 1)))))))
+
+
+(defn draw-onionskin-to-canvas [pixels canvas width height zoom-factor user-color]
+  (let [context (.getContext canvas "2d")
+        screen-canvas-width (* width zoom-factor)
+        screen-canvas-height (* height zoom-factor)
+        pixel-size zoom-factor
+        pixel-count (count pixels)]
+    (.save context)
+    (set! (.-globalAlpha context) 0.2)
+    (dotimes [x pixel-count]
+      (let [pix-x (* (mod x width) pixel-size)
+            pix-y (* (quot x height) pixel-size)
+            color (nth pixels x)]
+        (set! (.-fillStyle context) color)
+        (.fillRect context pix-x pix-y pixel-size pixel-size)))
+    (.restore context)))
+
+
 (defn draw-pixel-grid [canvas width height zoom-factor]
   (let [context (.getContext canvas "2d")
         screen-canvas-width (* width zoom-factor)
