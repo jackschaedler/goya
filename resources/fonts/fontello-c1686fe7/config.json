@@ -13,9 +13,39 @@
       "src": "fontawesome"
     },
     {
+      "uid": "0f4cae16f34ae243a6144c18a003f2d8",
+      "css": "cancel-circled",
+      "code": 59436,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "4ba33d2607902cf690dd45df09774cb0",
+      "css": "plus-circled",
+      "code": 59437,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "1a5cfa186647e8c929c2b17b9fc4dac1",
+      "css": "plus-squared",
+      "code": 59438,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "f755a58fb985eeb70bd47d9b31892a34",
+      "css": "minus-squared",
+      "code": 59439,
+      "src": "fontawesome"
+    },
+    {
       "uid": "9a76bc135eac17d2c8b8ad4a5774fc87",
       "css": "download",
       "code": 59422,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "eeec3208c90b7b48e804919d0d2d4a41",
+      "css": "upload",
+      "code": 59457,
       "src": "fontawesome"
     },
     {
@@ -31,15 +61,111 @@
       "src": "fontawesome"
     },
     {
+      "uid": "8933c2579166c2ee56ae40dc6a0b4dc6",
+      "css": "angle-circled-left",
+      "code": 59442,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "94089b37297572e936b0943bcfa041d3",
+      "css": "angle-circled-right",
+      "code": 59443,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "6855131631509e8795730ce062045ea1",
+      "css": "left-circled",
+      "code": 59444,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "19b04848ae7332d2c0ea2a9e19064037",
+      "css": "right-circled",
+      "code": 59445,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "ed5a38704f0329e610ee1c92bec3ad3d",
+      "css": "expand-right",
+      "code": 59440,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "ea2ec99fbce03864e593bbf4f302a79d",
+      "css": "collapse-left",
+      "code": 59441,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "f4445feb55521283572ee88bc304f928",
+      "css": "floppy-1",
+      "code": 59456,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "bf45c39702763f1803b550c36a0ceb12",
+      "css": "cancel-squared",
+      "code": 59446,
+      "src": "entypo"
+    },
+    {
+      "uid": "9e1c33b6849ceb08db8acfaf02188b7d",
+      "css": "plus-squared-1",
+      "code": 59447,
+      "src": "entypo"
+    },
+    {
+      "uid": "4ffa544c1a81c905f0a8a5745d8b9faa",
+      "css": "minus-squared-1",
+      "code": 59448,
+      "src": "entypo"
+    },
+    {
       "uid": "39a5a0d7ce8342d149373b2ce219503a",
       "css": "alert",
       "code": 59428,
       "src": "entypo"
     },
     {
+      "uid": "2626e3a1bbcd90e45849af3b58a1d594",
+      "css": "trash",
+      "code": 59449,
+      "src": "entypo"
+    },
+    {
       "uid": "4b20e1deee87faf4c3fab735fbd4bc1a",
       "css": "lamp",
       "code": 59425,
+      "src": "entypo"
+    },
+    {
+      "uid": "cb13afd4722a849d48056540bb74c47e",
+      "css": "play",
+      "code": 59450,
+      "src": "entypo"
+    },
+    {
+      "uid": "48f2e18872fe74d4579a4c8a1527fc1e",
+      "css": "stop",
+      "code": 59451,
+      "src": "entypo"
+    },
+    {
+      "uid": "d8d378d0ce413f231dfa37592e39c227",
+      "css": "pause",
+      "code": 59452,
+      "src": "entypo"
+    },
+    {
+      "uid": "0afbb00323696f49e9c47f4d9fe6390b",
+      "css": "to-end",
+      "code": 59453,
+      "src": "entypo"
+    },
+    {
+      "uid": "ceefe7653a4f6edaacce9e7f196cec5a",
+      "css": "to-start",
+      "code": 59454,
       "src": "entypo"
     },
     {
@@ -55,9 +181,21 @@
       "src": "entypo"
     },
     {
+      "uid": "191bcf63575a78def53c907c3d3bf7f0",
+      "css": "floppy",
+      "code": 59455,
+      "src": "entypo"
+    },
+    {
       "uid": "8ea66d97faf9816abd34f48f3f26d216",
       "css": "bucket",
       "code": 59432,
+      "src": "entypo"
+    },
+    {
+      "uid": "6cea40aa6cc50057083e4f0a5b92410c",
+      "css": "flow-line",
+      "code": 59435,
       "src": "entypo"
     },
     {
