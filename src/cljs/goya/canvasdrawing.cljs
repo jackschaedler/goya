@@ -30,7 +30,7 @@
         pixel-size zoom-factor]
       (.save context)
       (.translate context 0.5 0.5)
-      (set! (.-strokeStyle context) "rgba(127,127,127,0.4)")
+      (set! (.-strokeStyle context) "rgba(60,50,40,0.4)")
       (set! (.-lineWidth context) 1)
       (dotimes [y height]
         (let [pix-y (* y pixel-size)]
