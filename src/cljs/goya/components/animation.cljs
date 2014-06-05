@@ -3,6 +3,7 @@
 	(:require [om.core :as om :include-macros true]
             [om.dom :as omdom :include-macros true]
             [goya.timemachine :as timemachine]
+            [goya.previewstate :as previewstate]
             [cljs.core.async :refer [put! chan <! alts!]]))
 
 
@@ -64,6 +65,15 @@
   (om/update! app [:main-app :editing-frame] frame)
   (timemachine/update-preview))
 
+(defn set-preview-to-frame [frame]
+  (when (= frame :end-preview) (timemachine/update-preview))
+  (when (not (= frame :end-preview))
+    (println "hello there")
+    (reset! previewstate/preview-state
+      (assoc-in @previewstate/preview-state [:main-app :editing-frame] frame))))
+
+
+
 
 (defn class-name-for-frame [current-frame onion-skinning frame]
   (cond
@@ -78,10 +88,12 @@
 (defn frame-component [entry owner]
   (reify
     om/IRenderState
-    (render-state [this {:keys [selectchan current-frame onion-skinning index]}]
+    (render-state [this {:keys [selectchan previewchan current-frame onion-skinning index]}]
       (omdom/div
        #js {:className (class-name-for-frame current-frame onion-skinning index)
-            :onClick #(put! selectchan index)}
+            :onClick #(put! selectchan index)
+            :onMouseEnter #(put! previewchan index)
+            :onMouseLeave #(put! previewchan :end-preview)}
        (omdom/div #js {:className "frame-number"} (str (inc index)))))))
 
 
@@ -89,19 +101,23 @@
   (reify
     om/IInitState
     (init-state [_]
-      {:selectchan (chan)})
+      {:selectchan (chan)
+       :previewchan (chan)})
 
     om/IWillMount
     (will-mount [_]
-      (let [selectchan (om/get-state owner :selectchan)]
+      (let [selectchan (om/get-state owner :selectchan)
+            previewchan (om/get-state owner :previewchan)]
         (go
           (while true
-            (let [[v ch] (alts! [selectchan])]
+            (let [[v ch] (alts! [selectchan previewchan])]
               (when (= ch selectchan)
-                (set-current-frame app v)))))))
+                (set-current-frame app v))
+              (when (= ch previewchan)
+                (set-preview-to-frame v)))))))
 
     om/IRenderState
-    (render-state [this {:keys [selectchan]}]
+    (render-state [this {:keys [selectchan previewchan]}]
       (let [current-frame (get-in app [:main-app :editing-frame])
             onion-skinning (get-in app [:onion-skin])
             frames (get-in app [:main-app :animation])]
@@ -110,7 +126,8 @@
              (fn [idx frame]
                (om/build frame-component
                          frame
-                         {:init-state {:selectchan selectchan}
+                         {:init-state {:selectchan selectchan
+                                       :previewchan previewchan}
                           :state {:current-frame current-frame
                                   :onion-skinning onion-skinning
                                   :index idx}}))
