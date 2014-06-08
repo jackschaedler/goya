@@ -235,13 +235,15 @@
   (om/set-state! owner :selection [0 0 0 0])
   (om/set-state! owner :mouse-offset-in-selection [0 0])
   (om/set-state! owner :selection-image {})
-  (om/set-state! owner :user-is-moving-selection false))
+  (om/set-state! owner :user-is-moving-selection false)
+  (om/set-state! owner :selection-was-pasted false))
 
 
 (defn make-selection [app owner doc-x doc-y doc-width]
   (let [[orig-x orig-y] (get-in @guistate/transient-state [:mouse-down-pos])
         selection-rect (geometry/normalize-rect orig-x orig-y doc-x doc-y)
         main-image (canvas/get-current-pixels @app)]
+    (clear-selection-state owner)
     (om/set-state! owner :selection selection-rect)
     (om/set-state! owner :selection-image (clip-sub-image main-image selection-rect doc-width))))
 
@@ -332,7 +334,8 @@
          (* (- adjusted-doc-y mouse-down-y) zoom-factor))))
 
   (when (= paint-tool :selection)
-    (let [user-is-moving-selection (om/get-state owner :user-is-moving-selection)]
+    (let [user-is-moving-selection (om/get-state owner :user-is-moving-selection)
+          selection-was-pasted (om/get-state owner :selection-was-pasted)]
       (when (not user-is-moving-selection)
         (clear-preview-canvas)
         (set! (.-fillStyle preview-context) "rgba(127,127,127,0.3)")
@@ -353,11 +356,12 @@
               blit-y (- doc-y offset-y)]
           (clear-preview-canvas)
           (set! (.-fillStyle preview-context) (get-in @app [:tools :paint-color]))
-          (.fillRect preview-context
-             (* x1 zoom-factor)
-             (* y1 zoom-factor)
-             (* (- x2 x1) zoom-factor)
-             (* (- y2 y1) zoom-factor))
+          (when (not selection-was-pasted)
+            (.fillRect preview-context
+               (* x1 zoom-factor)
+               (* y1 zoom-factor)
+               (* (- x2 x1) zoom-factor)
+               (* (- y2 y1) zoom-factor)))
           (blit-sub-image @app (om/get-state owner :selection-image) blit-x blit-y)))))))
 
 
@@ -414,9 +418,11 @@
               [x1 y1 x2 y2] (om/get-state owner :selection)
               paste-x (- doc-x xOff)
               paste-y (- doc-y yOff)
+              selection-was-pasted (om/get-state owner :selection-was-pasted)
               backfill (create-sub-image-for-rect (om/get-state owner :selection)
                                                   (get-in @app [:tools :paint-color]))]
-        (paste-image app owner x1 y1 backfill)
+        (when (not selection-was-pasted)
+          (paste-image app owner x1 y1 backfill))
         (paste-image app owner paste-x paste-y (om/get-state owner :selection-image)))
         (clear-selection-state owner)
         (om/transact! app
@@ -444,7 +450,8 @@
   (let [clipboard-image (om/get-state owner :clipboard-image)
         paste-rect [0 0 (:width clipboard-image) (:height clipboard-image)]]
     (om/set-state! owner :selection-image clipboard-image)
-    (om/set-state! owner :selection paste-rect)))
+    (om/set-state! owner :selection paste-rect)
+    (om/set-state! owner :selection-was-pasted true)))
 
 (defn handle-command [app owner e]
   (when (= e :copy) (copy app owner e))
@@ -458,6 +465,7 @@
       (init-state [_]
         {:mouse-chan (chan)
          :user-is-moving-selection false
+         :selection-was-pasted false
          :selection [0 0 0 0]
          :selection-image {}
          :mouse-offset-in-selection [0 0]})
