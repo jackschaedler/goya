@@ -362,6 +362,84 @@
 
 ;; =============================================================================
 
+(defn handle-mouse-event [app owner e]
+  (let [event-type (.-type e)
+        [x y] (unpack-event e)
+        zoom-factor (get-in @app [:zoom-factor])
+        [doc-x doc-y] (geometry/screen-to-doc x y zoom-factor)
+        doc-width (get-in @app [:main-app :canvas-width])
+        doc-height (get-in @app [:main-app :canvas-height])
+        paint-tool (get-in @app [:tools :paint-tool])]
+    (when (= event-type "mousedown")
+      (when (not (= paint-tool :selection))
+        (reset! guistate/transient-state
+                (assoc @guistate/transient-state :user-is-drawing true))
+        (reset! guistate/transient-state
+                (assoc @guistate/transient-state :mouse-down-pos [doc-x doc-y]))
+        (paint-canvas-mouse-pos app owner e))
+      (when (= paint-tool :selection)
+        (let [mouse-is-within-selection (geometry/contains-point
+                                           (om/get-state owner :selection)
+                                           [doc-x doc-y])
+              [x1 y1 x2 y2] (om/get-state owner :selection)
+              offset-in-selection [(- doc-x x1) (- doc-y y1)]]
+           (when mouse-is-within-selection
+                 (om/set-state! owner :user-is-moving-selection true)
+                 (om/set-state! owner :mouse-offset-in-selection offset-in-selection)))
+        (reset! guistate/transient-state
+                (assoc @guistate/transient-state :user-is-drawing true))
+        (reset! guistate/transient-state
+                (assoc @guistate/transient-state :mouse-down-pos [doc-x doc-y]))
+        (paint-canvas-mouse-pos app owner e)))
+
+    (when (= event-type "mouseup")
+      (when (= paint-tool :brush)
+        (reset! guistate/transient-state
+                (assoc @guistate/transient-state :last-mouse-pos [])))
+      (when (= paint-tool :box)
+        (visit-pixels-for-rect-tool doc-x doc-y doc-width))
+      (when (= paint-tool :line)
+        (let [last-x ((get-in @guistate/transient-state [:mouse-down-pos]) 0)
+              last-y ((get-in @guistate/transient-state [:mouse-down-pos]) 1)]
+          (visit-pixels-for-line-segment doc-x doc-y last-x last-y doc-width)))
+      (when (= paint-tool :fill)
+        (visit-pixels-for-fill-tool doc-x doc-y (canvas/get-current-pixels @app) doc-width doc-height))
+      (when (= paint-tool :picker)
+        (pick-color app doc-x doc-y doc-width))
+      (when (and (= paint-tool :selection) (not (om/get-state owner :user-is-moving-selection)))
+        (make-selection app owner doc-x doc-y doc-width))
+      (when (and (= paint-tool :selection) (om/get-state owner :user-is-moving-selection))
+        (let [[xOff yOff] (om/get-state owner :mouse-offset-in-selection)
+              [x1 y1 x2 y2] (om/get-state owner :selection)
+              paste-x (- doc-x xOff)
+              paste-y (- doc-y yOff)
+              backfill (create-sub-image-for-rect (om/get-state owner :selection)
+                                                  (get-in @app [:tools :paint-color]))]
+        (paste-image app owner x1 y1 backfill)
+        (paste-image app owner paste-x paste-y (om/get-state owner :selection-image)))
+        (clear-selection-state owner)
+        (om/transact! app
+          [:main-app :undo-history]
+          #(conj % {:action (str "Moved Pixels") :icon "move"})
+          :add-to-undo))
+      (commit-stroke app)
+      (reset! guistate/transient-state
+              (assoc @guistate/transient-state :user-is-drawing false)))
+
+    (when (and (= event-type "mousemove") (:user-is-drawing @guistate/transient-state))
+      (paint-canvas-mouse-pos app owner e))
+
+    (when (= event-type "mousemove")
+      (reset! guistate/transient-state (assoc @guistate/transient-state :mouse-pos [doc-x doc-y])))))
+
+
+
+(defn handle-command [app owner e]
+  (println (str "Command Request: " e))
+)
+
+;; =============================================================================
+
 (defn canvas-painting-component [app owner]
   (reify
     om/IInitState
@@ -381,80 +459,13 @@
 
     om/IWillMount
     (will-mount [_]
-       (let [mouse-chan (om/get-state owner :mouse-chan)]
+       (let [mouse-chan (om/get-state owner :mouse-chan)
+             command-chan (om/get-shared owner :command-chan)]
         (go
           (loop []
-            (let [e (<! mouse-chan)
-                  event-type (.-type e)
-                  [x y] (unpack-event e)
-                  zoom-factor (get-in @app [:zoom-factor])
-                  [doc-x doc-y] (geometry/screen-to-doc x y zoom-factor)
-                  doc-width (get-in @app [:main-app :canvas-width])
-                  doc-height (get-in @app [:main-app :canvas-height])
-                  paint-tool (get-in @app [:tools :paint-tool])]
-
-                  (when (= event-type "mousedown")
-                    (when (not (= paint-tool :selection))
-                      (reset! guistate/transient-state
-                              (assoc @guistate/transient-state :user-is-drawing true))
-                      (reset! guistate/transient-state
-                              (assoc @guistate/transient-state :mouse-down-pos [doc-x doc-y]))
-                      (paint-canvas-mouse-pos app owner e))
-                    (when (= paint-tool :selection)
-                      (let [mouse-is-within-selection (geometry/contains-point
-                                                         (om/get-state owner :selection)
-                                                         [doc-x doc-y])
-                            [x1 y1 x2 y2] (om/get-state owner :selection)
-                            offset-in-selection [(- doc-x x1) (- doc-y y1)]]
-                         (when mouse-is-within-selection
-                               (om/set-state! owner :user-is-moving-selection true)
-                               (om/set-state! owner :mouse-offset-in-selection offset-in-selection)))
-                      (reset! guistate/transient-state
-                              (assoc @guistate/transient-state :user-is-drawing true))
-                      (reset! guistate/transient-state
-                              (assoc @guistate/transient-state :mouse-down-pos [doc-x doc-y]))
-                      (paint-canvas-mouse-pos app owner e)))
-
-                  (when (= event-type "mouseup")
-                    (when (= paint-tool :brush)
-                      (reset! guistate/transient-state
-                              (assoc @guistate/transient-state :last-mouse-pos [])))
-                    (when (= paint-tool :box)
-                      (visit-pixels-for-rect-tool doc-x doc-y doc-width))
-                    (when (= paint-tool :line)
-                      (let [last-x ((get-in @guistate/transient-state [:mouse-down-pos]) 0)
-                            last-y ((get-in @guistate/transient-state [:mouse-down-pos]) 1)]
-                        (visit-pixels-for-line-segment doc-x doc-y last-x last-y doc-width)))
-                    (when (= paint-tool :fill)
-                      (visit-pixels-for-fill-tool doc-x doc-y (canvas/get-current-pixels @app) doc-width doc-height))
-                    (when (= paint-tool :picker)
-                      (pick-color app doc-x doc-y doc-width))
-                    (when (and (= paint-tool :selection) (not (om/get-state owner :user-is-moving-selection)))
-                      (make-selection app owner doc-x doc-y doc-width))
-                    (when (and (= paint-tool :selection) (om/get-state owner :user-is-moving-selection))
-                      (let [[xOff yOff] (om/get-state owner :mouse-offset-in-selection)
-                            [x1 y1 x2 y2] (om/get-state owner :selection)
-                            paste-x (- doc-x xOff)
-                            paste-y (- doc-y yOff)
-                            backfill (create-sub-image-for-rect (om/get-state owner :selection)
-                                                                (get-in @app [:tools :paint-color]))]
-                      (paste-image app owner x1 y1 backfill)
-                      (paste-image app owner paste-x paste-y (om/get-state owner :selection-image)))
-                      (clear-selection-state owner)
-                      (om/transact! app
-                        [:main-app :undo-history]
-                        #(conj % {:action (str "Moved Pixels") :icon "move"})
-                        :add-to-undo))
-                    (commit-stroke app)
-                    (reset! guistate/transient-state
-                            (assoc @guistate/transient-state :user-is-drawing false)))
-
-                  (when (and (= event-type "mousemove") (:user-is-drawing @guistate/transient-state))
-                    (paint-canvas-mouse-pos app owner e))
-
-                  (when (= event-type "mousemove")
-                    (reset! guistate/transient-state (assoc @guistate/transient-state :mouse-pos [doc-x doc-y])))
-
+            (let [[v ch] (alts! [mouse-chan command-chan])]
+              (when (= ch mouse-chan) (handle-mouse-event app owner v))
+              (when (= ch command-chan) (handle-command app owner v))
           (recur))))))
 
     ;; =============================================================================
