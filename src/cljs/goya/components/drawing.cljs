@@ -441,8 +441,10 @@
     (om/set-state! owner :clipboard-image clipboard-image)))
 
 (defn paste [app owner e]
-  (let [clipboard-image (om/get-state owner :clipboard-image)]
-    (println clipboard-image)))
+  (let [clipboard-image (om/get-state owner :clipboard-image)
+        paste-rect [0 0 (:width clipboard-image) (:height clipboard-image)]]
+    (om/set-state! owner :selection-image clipboard-image)
+    (om/set-state! owner :selection paste-rect)))
 
 (defn handle-command [app owner e]
   (when (= e :copy) (copy app owner e))
