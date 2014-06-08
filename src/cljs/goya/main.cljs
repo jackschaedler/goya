@@ -26,6 +26,9 @@
 
 (enable-console-print!)
 
+(defn tx-listener [tx-data root-cursor]
+  (timemachine/handle-transaction tx-data root-cursor))
+
 
 ;; =============================================================================
 ;; This got out of hand before I got the hang of OM. Subsequent version will
@@ -41,7 +44,7 @@
   app/app-state
   {:path [:info]
    :target (. js/document (getElementById "title"))
-   :tx-listen #(timemachine/handle-transaction % %)})
+   :tx-listen #(tx-listener % %)})
 
 
 (om/root
