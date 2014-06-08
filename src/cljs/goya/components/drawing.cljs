@@ -455,7 +455,8 @@
 
 (defn handle-command [app owner e]
   (when (= e :copy) (copy app owner e))
-  (when (= e :paste) (paste app owner e)))
+  (when (= e :paste) (paste app owner e))
+  (when (= e :frame-switched) (clear-selection-state owner)))
 
 ;; =============================================================================
 

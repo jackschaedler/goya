@@ -27,6 +27,7 @@
 (enable-console-print!)
 
 (defn tx-listener [tx-data root-cursor]
+  (globalcommands/handle-transaction tx-data root-cursor)
   (timemachine/handle-transaction tx-data root-cursor))
 
 

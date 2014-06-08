@@ -10,3 +10,8 @@
 
 (defn paste []
   (put! command-chan :paste))
+
+(defn handle-transaction [tx-data root-cursor]
+  (let [transaction-path (:path tx-data)]
+    (when (= (last transaction-path) :editing-frame)
+      (put! command-chan :frame-switched))))
