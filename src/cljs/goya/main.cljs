@@ -8,6 +8,7 @@
             [goya.timemachine :as timemachine]
             [goya.guistate :as guistate]
             [goya.previewstate :as previewstate]
+            [goya.globalcommands :as globalcommands]
             [goya.components.animation :as animation]
             [goya.components.mainmenu :as mainmenu]
             [goya.components.toolsmenu :as toolsmenu]
@@ -113,7 +114,8 @@
 (om/root
   drawing/canvas-painting-component
   app/app-state
-  {:target (. js/document (getElementById "canvas-watcher"))})
+  {:target (. js/document (getElementById "canvas-watcher"))
+   :shared {:command-chan globalcommands/command-chan}})
 
 
 (om/root

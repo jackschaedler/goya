@@ -3,6 +3,7 @@
 	(:require [goya.components.canvastools :as canvastools]
             [goya.components.animation :as animation]
             [goya.timemachine :as timemachine]
+            [goya.globalcommands :as globalcommands]
             [om.core :as om :include-macros true]
             [om.dom :as omdom :include-macros true]
             [cljs.core.async :refer [put! chan <! alts!]]))
@@ -21,6 +22,7 @@
 (def Z-KEY 90)
 (def X-KEY 88)
 (def Q-KEY 81)
+(def V-KEY 86)
 (def W-KEY 87)
 (def O-KEY 79)
 (def MINUS-KEY 189)
@@ -59,6 +61,10 @@
                      #(timemachine/do-redo)
                    (and (= keyCode Z-KEY) (or ctrlKey metaKey))
                      #(timemachine/do-undo)
+                   (and (= keyCode C-KEY) (or ctrlKey metaKey))
+                     #(globalcommands/copy)
+                   (and (= keyCode V-KEY) (or ctrlKey metaKey))
+                     #(globalcommands/paste)
                  )]
     (when-not (= handler nil) (handler app))))
 
