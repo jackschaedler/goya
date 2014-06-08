@@ -200,9 +200,9 @@
 (defn blit-sub-image [app sub-image xoff yoff]
   (let [canvas preview-canvas-elem
         context (.getContext canvas "2d")
-        width (get-in @app [:main-app :canvas-width])
-        height (get-in @app [:main-app :canvas-height])
-        zoom-factor (get-in @app [:zoom-factor])
+        width (get-in app [:main-app :canvas-width])
+        height (get-in app [:main-app :canvas-height])
+        zoom-factor (get-in app [:zoom-factor])
         pixel-size zoom-factor
         sub-image-pixel-count (count (:image-data sub-image))]
     (dotimes [x sub-image-pixel-count]
@@ -258,6 +258,13 @@
          (* (- x2 x1) zoom-factor)
          (* (- y2 y1) zoom-factor))
      (.stroke preview-context)))
+
+
+(defn draw-selection [app owner]
+   (let [preview-context (.getContext preview-canvas-elem "2d")
+         [x1 y1 x2 y2] (om/get-state owner :selection)
+         selection-image (om/get-state owner :selection-image)]
+      (blit-sub-image app selection-image x1 y1)))
 
 
 ;; =============================================================================
@@ -351,7 +358,7 @@
              (* y1 zoom-factor)
              (* (- x2 x1) zoom-factor)
              (* (- y2 y1) zoom-factor))
-          (blit-sub-image app (om/get-state owner :selection-image) blit-x blit-y)))))))
+          (blit-sub-image @app (om/get-state owner :selection-image) blit-x blit-y)))))))
 
 
 ;; =============================================================================
@@ -456,9 +463,9 @@
 
     om/IDidUpdate
       (did-update [_ _ _]
-          (clear-preview-canvas)
-          (when (= (get-in app [:tools :paint-tool]) :selection)
-            (draw-selection-outline app owner)))
+        (when (= (get-in app [:tools :paint-tool]) :selection)
+          (draw-selection app owner)
+          (draw-selection-outline app owner)))
 
     om/IWillMount
     (will-mount [_]
