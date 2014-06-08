@@ -246,7 +246,7 @@
     (om/set-state! owner :selection-image (clip-sub-image main-image selection-rect doc-width))))
 
 
-(defn draw-selection [app owner]
+(defn draw-selection-outline [app owner]
    (let [preview-context (.getContext preview-canvas-elem "2d")
          [x1 y1 x2 y2] (om/get-state owner :selection)
          zoom-factor (get-in app [:zoom-factor])]
@@ -464,7 +464,7 @@
       (did-update [_ _ _]
           (clear-preview-canvas)
           (when (= (get-in app [:tools :paint-tool]) :selection)
-            (draw-selection app owner)))
+            (draw-selection-outline app owner)))
 
     om/IWillMount
     (will-mount [_]
