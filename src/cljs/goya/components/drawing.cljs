@@ -250,7 +250,6 @@
    (let [preview-context (.getContext preview-canvas-elem "2d")
          [x1 y1 x2 y2] (om/get-state owner :selection)
          zoom-factor (get-in app [:zoom-factor])]
-     (clear-preview-canvas)
      (set! (.-strokeStyle preview-context) "#ffffff")
      (.setLineDash preview-context #js [5])
      (.rect preview-context
