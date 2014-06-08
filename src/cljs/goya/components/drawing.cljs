@@ -332,11 +332,6 @@
         (set! (.-fillStyle preview-context) "rgba(127,127,127,0.3)")
         (let [adjusted-doc-x (inc doc-x)
               adjusted-doc-y (inc doc-y)]
-          (.fillRect preview-context
-             (* mouse-down-x zoom-factor)
-             (* mouse-down-y zoom-factor)
-             (* (- adjusted-doc-x mouse-down-x) zoom-factor)
-             (* (- adjusted-doc-y mouse-down-y) zoom-factor))
           (set! (.-strokeStyle preview-context) "#ffffff")
           (.setLineDash preview-context #js [5])
           (.rect preview-context
