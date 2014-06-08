@@ -433,10 +433,19 @@
       (reset! guistate/transient-state (assoc @guistate/transient-state :mouse-pos [doc-x doc-y])))))
 
 
+;; =============================================================================
+
+(defn copy [app owner e]
+  (let [clipboard-image (om/get-state owner :selection-image)]
+    (om/set-state! owner :clipboard-image clipboard-image)))
+
+(defn paste [app owner e]
+  (let [clipboard-image (om/get-state owner :clipboard-image)]
+    (println clipboard-image)))
 
 (defn handle-command [app owner e]
-  (println (str "Command Request: " e))
-)
+  (when (= e :copy) (copy app owner e))
+  (when (= e :paste) (paste app owner e)))
 
 ;; =============================================================================
 
