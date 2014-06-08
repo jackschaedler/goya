@@ -477,10 +477,6 @@
               (when (= ch command-chan) (handle-command app owner v))
           (recur))))))
 
-    ;; =============================================================================
-    ;; I shouldn't have to listen to the events like this, but if I simply setup
-    ;; the listeners in the render function, I get bogus events
-
     om/IDidMount
       (did-mount [_]
         (let [painter-watcher (om/get-node owner "painter-watcher-ref")
