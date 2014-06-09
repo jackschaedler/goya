@@ -64,7 +64,11 @@
 
 
 (defn set-bg-color [app]
-  (om/update! app [:main-app :background-color] (get-in @app [:tools :paint-color])))
+  (om/update! app [:main-app :background-color] (get-in @app [:tools :paint-color]))
+  (om/transact! app
+                [:main-app :undo-history]
+                #(conj % {:action "Set Background Color" :icon "pipette"})
+                :add-to-undo))
 
 (defn set-paint-color [app color]
   (om/update! app [:tools :paint-color] color))
