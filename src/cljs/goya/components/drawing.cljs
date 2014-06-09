@@ -170,11 +170,11 @@
         (recur img keys-to-assoc)))))
 
 
-(defn create-sub-image-for-rect [rect color]
+(defn create-sub-image-for-rect [rect]
   (let [width (geometry/rect-width rect)
         height (geometry/rect-height rect)
         pixel-count (* width height)
-        image-data (vec (take pixel-count (repeat color)))]
+        image-data (vec (take pixel-count (repeat "#T")))]
     {:width width
      :height height
      :image-data image-data}))
@@ -421,8 +421,7 @@
               paste-x (- doc-x xOff)
               paste-y (- doc-y yOff)
               selection-was-pasted (om/get-state owner :selection-was-pasted)
-              backfill (create-sub-image-for-rect (om/get-state owner :selection)
-                                                  (get-in @app [:tools :paint-color]))]
+              backfill (create-sub-image-for-rect (om/get-state owner :selection))]
         (when (not selection-was-pasted)
           (paste-image app owner x1 y1 backfill))
         (paste-image app owner paste-x paste-y (om/get-state owner :selection-image)))
