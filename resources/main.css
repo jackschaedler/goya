@@ -88,7 +88,7 @@ body
 {
   position: absolute;
   width: 230px;
-  height: 1200px;
+  height: 1250px;
   top: 0px;
   right: 0px;
   background: #2a2a2a;
@@ -103,7 +103,7 @@ body
   top: 0px;
   left: 0px;
   width: 230px;
-  height: 1200px;
+  height: 1250px;
   background: #272727;
 
   box-shadow: 1px 1px 2px 2px rgba(0,0,0,0.3);
@@ -503,7 +503,7 @@ body
 .goyaBody
 {
   padding: 0px;
-  height: 1200px;
+  height: 1250px;
   background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#222222), to(#000000));
   background: -moz-linear-gradient(top, #222222, #000000);
   -webkit-user-select: none;
