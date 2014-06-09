@@ -26,6 +26,8 @@
 
 (enable-console-print!)
 
+(reset! previewstate/preview-state @app/app-state)
+
 (defn tx-listener [tx-data root-cursor]
   (globalcommands/handle-transaction tx-data root-cursor)
   (timemachine/handle-transaction tx-data root-cursor))
