@@ -3,6 +3,7 @@
 	(:require [om.core :as om :include-macros true]
             [om.dom :as omdom :include-macros true]
             [goog.events :as events]
+            [goya.canvasdrawing :as canvasdrawing]
             [goya.components.bresenham :as bresenham]
             [goya.components.canvas :as canvas]
             [goya.components.geometry :as geometry]
@@ -211,8 +212,9 @@
             color (nth (:image-data sub-image) x)
             x-with-offset (+ pix-x (* xoff pixel-size))
             y-with-offset (+ pix-y (* yoff pixel-size))]
-        (set! (.-fillStyle context) color)
-        (.fillRect context x-with-offset y-with-offset pixel-size pixel-size)))))
+        (when
+          (not= color "#T")
+          (canvasdrawing/draw-pixel x-with-offset y-with-offset pixel-size color context))))))
 
 
 (defn clip-sub-image [image rect doc-width]

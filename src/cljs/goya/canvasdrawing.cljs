@@ -4,6 +4,10 @@
 ;; =============================================================================
 ;; Blitting routines. Javascript interop is so easy!
 
+(defn draw-pixel [x y size color context]
+  (set! (.-fillStyle context) color)
+  (.fillRect context x y size size))
+
 
 (defn draw-image-to-canvas [pixels canvas width height zoom-factor]
   (let [context (.getContext canvas "2d")
@@ -19,8 +23,9 @@
       (let [pix-x (* (mod x width) pixel-size)
             pix-y (* (quot x height) pixel-size)
             color (nth pixels x)]
-        (set! (.-fillStyle context) color)
-        (.fillRect context pix-x pix-y pixel-size pixel-size)))))
+        (when
+          (not= color "#T")
+          (draw-pixel pix-x pix-y pixel-size color context))))))
 
 
 (defn draw-spritesheet-to-canvas [animation canvas frame-width frame-height]
@@ -38,8 +43,9 @@
                 pix-x (+ (mod i frame-width) x-offset)
                 pix-y (quot i frame-height)
                 color (nth pixels i)]
-            (set! (.-fillStyle context) color)
-            (.fillRect context pix-x pix-y 1 1)))))))
+            (when
+              (not= color "#T")
+              (draw-pixel pix-x pix-y 1 color context))))))))
 
 
 (defn draw-onionskin-to-canvas [pixels canvas width height zoom-factor user-color]
@@ -54,8 +60,9 @@
       (let [pix-x (* (mod x width) pixel-size)
             pix-y (* (quot x height) pixel-size)
             color (nth pixels x)]
-        (set! (.-fillStyle context) color)
-        (.fillRect context pix-x pix-y pixel-size pixel-size)))
+        (when
+          (not= color "#T")
+          (draw-pixel pix-x pix-y pixel-size color context))))
     (.restore context)))
 
 
