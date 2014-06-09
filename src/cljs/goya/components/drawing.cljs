@@ -268,6 +268,7 @@
   (let [doc-width (get-in @app [:main-app :canvas-width])
         selection [0 0 doc-width doc-width]
         main-image (canvas/get-current-pixels @app)]
+    (om/update! app [:tools :paint-tool] :selection)
     (clear-selection-state owner)
     (om/set-state! owner :selection selection)
     (om/set-state! owner :selection-image (clip-sub-image main-image selection doc-width))))
