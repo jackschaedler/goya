@@ -17,6 +17,7 @@
 (def SIX-KEY 54)
 (def A-KEY 65)
 (def D-KEY 68)
+(def E-KEY 69)
 (def C-KEY 67)
 (def G-KEY 71)
 (def Z-KEY 90)
@@ -36,6 +37,9 @@
 (defn select-tool [app tool]
   (om/update! app [:tools :paint-tool] tool))
 
+(defn toggle-erase-mode [app]
+  (om/transact! app [:main-app :erase-mode] not))
+
 
 (defn handle-key-event [app event]
   (let [keyCode (.-keyCode event)
@@ -48,6 +52,7 @@
                    (= keyCode Q-KEY) #(canvastools/zoom-out app)
                    (= keyCode O-KEY) #(animation/toggle-onion-skin app)
                    (= keyCode D-KEY) #(animation/delete-current-frame app)
+                   (= keyCode E-KEY) #(toggle-erase-mode app)
                    (= keyCode ONE-KEY) #(select-tool app :brush)
                    (= keyCode TWO-KEY) #(select-tool app :line)
                    (= keyCode THREE-KEY) #(select-tool app :box)

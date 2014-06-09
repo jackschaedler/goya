@@ -78,8 +78,7 @@
 (om/root
   toolsmenu/tools-menu-component
   app/app-state
-  {:target (. js/document (getElementById "tools-menu"))
-   :path [:tools]})
+  {:target (. js/document (getElementById "tools-menu"))})
 
 
 (om/root

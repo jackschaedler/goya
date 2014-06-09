@@ -342,6 +342,14 @@ body
   -moz-user-select: none;
 }
 
+.erase-mode-indicator
+{
+  position: absolute;
+  margin-top: -16px;
+  margin-left: 22px;
+  height: 15px;
+}
+
 .tools-menu-item-selected
 {
   background: #212121;
@@ -834,6 +842,7 @@ body
   text-align: center;
   border: 1px solid #424242;
   cursor: pointer;
+  color: #626262;
 }
 
 .animation-controls .animation-frames .animation-frame:hover
@@ -860,10 +869,10 @@ body
 .animation-controls .animation-frames .animation-frame .frame-number
 {
   line-height: 5px;
-  text-align: left;
-  margin-top: 4px;
-  margin-left: 2px;
-  font-size: 8px;
+  text-align: center;
+  margin-top: 8px;
+  margin-left: 0px;
+  font-size: 10px;
 }
 
 .animation-controls .animation-tools

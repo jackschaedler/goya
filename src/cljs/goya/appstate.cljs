@@ -32,6 +32,7 @@
 
 
      :onion-skin :off
+     :erase-mode false
 
      :info
      {
