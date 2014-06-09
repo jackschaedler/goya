@@ -527,6 +527,7 @@ body
 
 .palette-colors
 {
+  clear: both;
   margin-left: 3px;
   height: 100px;
   overflow: auto;
@@ -552,10 +553,32 @@ body
   border: 2px solid #ffffff;
 }
 
+.background-color-button
+{
+  padding-right: 13px;
+  font-family: "Futura";
+  font-size: 12px;
+  font-weight: normal;
+  color: #c2c2c2;
+  background: #323232;
+  text-align: right;
+  line-height: 31px;
+  height: 32px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  cursor: pointer;
+}
+
+.background-color-button:hover
+{
+  color: #e2e2e2;
+  background: #212121;
+}
+
 .palette_adder_entry
 {
-  clear: both;
-  width: 230px;
+  float: left;
+  width: 120px;
   height: 32px;
   margin-bottom: 4px;
   background: #323232;
@@ -577,7 +600,7 @@ body
   font-weight: normal;
   color: #c2c2c2;
   text-align: left;
-  padding-left: 85px;
+  padding-left: 45px;
   line-height: 32px;
   height: 32px;
   -webkit-user-select: none;
