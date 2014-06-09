@@ -47,7 +47,6 @@
                    (= keyCode W-KEY) #(canvastools/zoom-in app)
                    (= keyCode Q-KEY) #(canvastools/zoom-out app)
                    (= keyCode O-KEY) #(animation/toggle-onion-skin app)
-                   (= keyCode A-KEY) #(animation/add-new-frame app)
                    (= keyCode D-KEY) #(animation/delete-current-frame app)
                    (= keyCode ONE-KEY) #(select-tool app :brush)
                    (= keyCode TWO-KEY) #(select-tool app :line)
@@ -65,7 +64,10 @@
                      #(globalcommands/copy)
                    (and (= keyCode V-KEY) (or ctrlKey metaKey))
                      #(globalcommands/paste)
+                   (and (= keyCode A-KEY) (or ctrlKey metaKey))
+                     #(globalcommands/select-all)
                    (= keyCode C-KEY) #(globalcommands/clear)
+                   (= keyCode A-KEY) #(animation/add-new-frame app)
                  )]
     (when-not (= handler nil) (handler app))))
 

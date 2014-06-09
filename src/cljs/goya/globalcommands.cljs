@@ -14,6 +14,9 @@
 (defn clear []
   (put! command-chan :clear))
 
+(defn select-all []
+  (put! command-chan :select-all))
+
 (defn handle-transaction [tx-data root-cursor]
   (let [transaction-path (:path tx-data)]
     (when (= (last transaction-path) :editing-frame)

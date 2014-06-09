@@ -264,6 +264,15 @@
     (om/set-state! owner :selection-image (clip-sub-image main-image selection-rect doc-width))))
 
 
+(defn select-all [app owner]
+  (let [doc-width (get-in @app [:main-app :canvas-width])
+        selection [0 0 doc-width doc-width]
+        main-image (canvas/get-current-pixels @app)]
+    (clear-selection-state owner)
+    (om/set-state! owner :selection selection)
+    (om/set-state! owner :selection-image (clip-sub-image main-image selection doc-width))))
+
+
 (defn draw-selection-outline [app owner]
    (let [preview-context (.getContext preview-canvas-elem "2d")
          [x1 y1 x2 y2] (om/get-state owner :selection)
@@ -472,6 +481,7 @@
   (when (= e :copy) (copy app owner e))
   (when (= e :paste) (paste app owner e))
   (when (= e :clear) (delete-selection app owner))
+  (when (= e :select-all) (select-all app owner))
   (when (= e :frame-switched) (clear-selection-state owner)))
 
 ;; =============================================================================
