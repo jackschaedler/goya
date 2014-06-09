@@ -9,7 +9,7 @@
   (.fillRect context x y size size))
 
 
-(defn draw-image-to-canvas [pixels canvas width height zoom-factor]
+(defn draw-image-to-canvas [pixels canvas width height zoom-factor background-color]
   (let [context (.getContext canvas "2d")
         screen-canvas-width (* width zoom-factor)
         screen-canvas-height (* height zoom-factor)
@@ -17,7 +17,7 @@
         pixel-count (count pixels)]
     (set! (.-width canvas) screen-canvas-width)
     (set! (.-height canvas) screen-canvas-height)
-    (set! (.-fillStyle context) "#ff0000")
+    (set! (.-fillStyle context) background-color)
     (.fillRect context 0 0 screen-canvas-width screen-canvas-height)
     (dotimes [x pixel-count]
       (let [pix-x (* (mod x width) pixel-size)

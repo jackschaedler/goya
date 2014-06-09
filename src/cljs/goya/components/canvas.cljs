@@ -25,12 +25,13 @@
 
 (defn refresh-pixels [app owner dom-node-ref]
   (let [canvas (om/get-node owner dom-node-ref)
+        background-color (get-in app [:main-app :background-color])
         width (get-in app [:main-app :canvas-width])
         height (get-in app [:main-app :canvas-height])
         pixels (get-current-pixels app)
         zoom-factor (if (= dom-node-ref "main-canvas-ref")
                         (get-in app [:zoom-factor]) 2)]
-  (canvasdrawing/draw-image-to-canvas pixels canvas width height zoom-factor)))
+  (canvasdrawing/draw-image-to-canvas pixels canvas width height zoom-factor background-color)))
 
 
 (defn refresh-onionskin [app owner dom-node-ref]
