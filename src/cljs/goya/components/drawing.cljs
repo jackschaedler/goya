@@ -156,7 +156,7 @@
 ;; Pro: Learned a bit about clojure list comprehensions
 ;; Con: This file is turning into something like a little monster
 
-(defn assoc-map [img-vector indices-to-colors]
+(defn assoc-map [img-vector indices-to-colors paste-transparent-pixels]
   (loop [img img-vector
          keys-to-assoc (vec (keys indices-to-colors))]
     (if (empty? keys-to-assoc)
@@ -164,7 +164,9 @@
       (let [key-to-assoc (peek keys-to-assoc)
             keys-to-assoc (pop keys-to-assoc)
             color (indices-to-colors key-to-assoc)
-            img (if (not (= key-to-assoc :clipped))
+            img (if (and
+                      (not (= key-to-assoc :clipped))
+                      (or (not= color "#T") paste-transparent-pixels))
                   (assoc img key-to-assoc color)
                   img)]
         (recur img keys-to-assoc)))))
@@ -180,7 +182,7 @@
      :image-data image-data}))
 
 
-(defn paste-image [app owner doc-x doc-y sub-image]
+(defn paste-image [app owner doc-x doc-y sub-image paste-transparent-pixels]
   (let [main-image (canvas/get-current-pixels @app)
         main-image-width (get-in @app [:main-app :canvas-width])
         main-image-height (get-in @app [:main-app :canvas-height])
@@ -194,7 +196,7 @@
                            :clipped)])
         flat-indices (vec (flatten (vec indices)))
         indices-to-colors (zipmap flat-indices (:image-data sub-image))
-        new-image (assoc-map main-image indices-to-colors)]
+        new-image (assoc-map main-image indices-to-colors paste-transparent-pixels)]
     (canvas/set-current-pixels app (vec new-image))))
 
 
@@ -357,7 +359,7 @@
               blit-x (- doc-x offset-x)
               blit-y (- doc-y offset-y)]
           (clear-preview-canvas)
-          (set! (.-fillStyle preview-context) (get-in @app [:tools :paint-color]))
+          (set! (.-fillStyle preview-context) (get-in @app [:main-app :background-color]))
           (when (not selection-was-pasted)
             (.fillRect preview-context
                (* x1 zoom-factor)
@@ -423,8 +425,8 @@
               selection-was-pasted (om/get-state owner :selection-was-pasted)
               backfill (create-sub-image-for-rect (om/get-state owner :selection))]
         (when (not selection-was-pasted)
-          (paste-image app owner x1 y1 backfill))
-        (paste-image app owner paste-x paste-y (om/get-state owner :selection-image)))
+          (paste-image app owner x1 y1 backfill true))
+        (paste-image app owner paste-x paste-y (om/get-state owner :selection-image) false))
         (clear-selection-state owner)
         (om/transact! app
           [:main-app :undo-history]
