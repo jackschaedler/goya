@@ -65,6 +65,7 @@
                      #(globalcommands/copy)
                    (and (= keyCode V-KEY) (or ctrlKey metaKey))
                      #(globalcommands/paste)
+                   (= keyCode C-KEY) #(globalcommands/clear)
                  )]
     (when-not (= handler nil) (handler app))))
 

@@ -243,6 +243,18 @@
   (om/set-state! owner :selection-was-pasted false))
 
 
+(defn delete-selection [app owner]
+  (let [selection (om/get-state owner :selection)
+        [x1 y1 x2 y2] selection
+        clear-rect (create-sub-image-for-rect selection)]
+    (clear-selection-state owner)
+    (paste-image app owner x1 y1 clear-rect true)
+    (om/transact! app
+      [:main-app :undo-history]
+      #(conj % {:action (str "Cleared Selection") :icon "trash"})
+      :add-to-undo)))
+
+
 (defn make-selection [app owner doc-x doc-y doc-width]
   (let [[orig-x orig-y] (get-in @guistate/transient-state [:mouse-down-pos])
         selection-rect (geometry/normalize-rect orig-x orig-y doc-x doc-y)
@@ -459,6 +471,7 @@
 (defn handle-command [app owner e]
   (when (= e :copy) (copy app owner e))
   (when (= e :paste) (paste app owner e))
+  (when (= e :clear) (delete-selection app owner))
   (when (= e :frame-switched) (clear-selection-state owner)))
 
 ;; =============================================================================
