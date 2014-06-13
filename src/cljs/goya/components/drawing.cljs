@@ -341,7 +341,6 @@
     (let [active-pixels-since-last-event (bresenham/bresenham doc-x doc-y last-x last-y)]
       (set! (.-fillStyle preview-context) preview-color)
       (paint-pixels-for-pencil-tool (conj active-pixels-since-last-event [doc-x doc-y]) pixel-size)
-      (visit-pixel doc-index)
       (visit-pixels-for-line-segment doc-x doc-y last-x last-y doc-canvas-width)
       (reset! guistate/transient-state
               (assoc @guistate/transient-state :last-mouse-pos [doc-x doc-y]))))
