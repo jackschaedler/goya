@@ -46,9 +46,11 @@
   (reduce #(assoc %1 %2 value) v ks))
 
 (defn commit-stroke [app]
-  (let [paint-color (get-in @app [:tools :paint-color])
+  (let [erase-mode (get-in @app [:erase-mode])
+        paint-color (get-in @app [:tools :paint-color])
+        commit-color (if erase-mode "#T" paint-color)
         old-image (canvas/get-current-pixels @app)
-        new-image (assoc-all old-image @visited-pixels paint-color)
+        new-image (assoc-all old-image @visited-pixels commit-color)
         undo-list (get-in @app [:main-app :undo-history])
         paint-tool (get-in @app [:tools :paint-tool])]
 
@@ -326,6 +328,9 @@
       doc-canvas-height (get-in @app [:main-app :canvas-height])
       doc-index (geometry/flatten-to-index doc-x doc-y doc-canvas-width)
       paint-color (get-in @app [:tools :paint-color])
+      background-color (get-in @app [:main-app :background-color])
+      erase-mode (get-in @app [:erase-mode])
+      preview-color (if erase-mode "rgba(0,0,0,0.5)" paint-color)
       paint-tool (get-in @app [:tools :paint-tool])
       preview-context (.getContext preview-canvas-elem "2d")
       [mouse-down-x mouse-down-y] (get-in @guistate/transient-state [:mouse-down-pos])
@@ -334,7 +339,7 @@
       last-y (if (empty? last-pos) doc-y (nth last-pos 1))]
   (when (= paint-tool :brush)
     (let [active-pixels-since-last-event (bresenham/bresenham doc-x doc-y last-x last-y)]
-      (set! (.-fillStyle preview-context) paint-color)
+      (set! (.-fillStyle preview-context) preview-color)
       (paint-pixels-for-pencil-tool (conj active-pixels-since-last-event [doc-x doc-y]) pixel-size)
       (visit-pixel doc-index)
       (visit-pixels-for-line-segment doc-x doc-y last-x last-y doc-canvas-width)
@@ -343,13 +348,13 @@
 
   (when (= paint-tool :line)
     (clear-preview-canvas)
-    (set! (.-fillStyle preview-context) paint-color)
+    (set! (.-fillStyle preview-context) preview-color)
     (let [line-coords (bresenham/bresenham mouse-down-x mouse-down-y doc-x doc-y)]
       (paint-pixels-for-pencil-tool line-coords pixel-size)))
 
   (when (= paint-tool :box)
     (set! (.-width preview-canvas-elem) (.-width preview-canvas-elem))
-    (set! (.-fillStyle preview-context) paint-color)
+    (set! (.-fillStyle preview-context) preview-color)
 
     (let [adjusted-doc-x (inc doc-x)
           adjusted-doc-y (inc doc-y)]
