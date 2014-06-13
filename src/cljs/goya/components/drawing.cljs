@@ -304,16 +304,19 @@
         flat-coords (vec (map #(geometry/flatten-point-to-index % doc-width) coords))]
     (reset! visited-pixels (vec (concat @visited-pixels flat-coords)))))
 
-(defn paint-pixel [coord pixel-size]
+(defn paint-pixel [coord pixel-size doc-canvas-width]
   (let [[x y] coord
+        flat-coord (geometry/flatten-point-to-index coord doc-canvas-width)
+        already-drew-point (some #(= flat-coord %) @visited-pixels)
         preview-context (.getContext preview-canvas-elem "2d")]
-    (.fillRect preview-context
-               (* x pixel-size)
-               (* y pixel-size)
-               pixel-size pixel-size)))
+    (when-not already-drew-point
+      (.fillRect preview-context
+                 (* x pixel-size)
+                 (* y pixel-size)
+                 pixel-size pixel-size))))
 
-(defn paint-pixels-for-pencil-tool [coords pixel-size]
-  (dorun (map #(paint-pixel % pixel-size) coords)))
+(defn paint-pixels-for-pencil-tool [coords pixel-size doc-canvas-width]
+  (dorun (map #(paint-pixel % pixel-size doc-canvas-width) coords)))
 
 
 ;; =============================================================================
@@ -340,7 +343,7 @@
   (when (= paint-tool :brush)
     (let [active-pixels-since-last-event (bresenham/bresenham doc-x doc-y last-x last-y)]
       (set! (.-fillStyle preview-context) preview-color)
-      (paint-pixels-for-pencil-tool active-pixels-since-last-event pixel-size)
+      (paint-pixels-for-pencil-tool active-pixels-since-last-event pixel-size doc-canvas-width)
       (visit-pixels-for-line-segment doc-x doc-y last-x last-y doc-canvas-width)
       (reset! guistate/transient-state
               (assoc @guistate/transient-state :last-mouse-pos [doc-x doc-y]))))
@@ -349,7 +352,7 @@
     (clear-preview-canvas)
     (set! (.-fillStyle preview-context) preview-color)
     (let [line-coords (bresenham/bresenham mouse-down-x mouse-down-y doc-x doc-y)]
-      (paint-pixels-for-pencil-tool line-coords pixel-size)))
+      (paint-pixels-for-pencil-tool line-coords pixel-size doc-canvas-width)))
 
   (when (= paint-tool :box)
     (set! (.-width preview-canvas-elem) (.-width preview-canvas-elem))
