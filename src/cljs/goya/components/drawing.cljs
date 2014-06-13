@@ -101,10 +101,11 @@
 ;; =============================================================================
 ;; Pick color
 
-(defn pick-color [app doc-x doc-y doc-width]
+(defn pick-color [app doc-x doc-y doc-width background-color]
   (let [index (geometry/flatten-to-index doc-x doc-y doc-width)
-        color (nth (canvas/get-current-pixels @app) index)]
-    (palette/add-color app color)))
+        color (nth (canvas/get-current-pixels @app) index)
+        real-color (if (= color "#T") background-color color)]
+    (palette/add-color app real-color)))
 
 
 ;; =============================================================================
@@ -407,7 +408,8 @@
         [doc-x doc-y] (geometry/screen-to-doc x y zoom-factor)
         doc-width (get-in @app [:main-app :canvas-width])
         doc-height (get-in @app [:main-app :canvas-height])
-        paint-tool (get-in @app [:tools :paint-tool])]
+        paint-tool (get-in @app [:tools :paint-tool])
+        background-color (get-in @app [:main-app :background-color])]
     (when (= event-type "mousedown")
       (when (not (= paint-tool :selection))
         (reset! guistate/transient-state
@@ -443,7 +445,7 @@
       (when (= paint-tool :fill)
         (visit-pixels-for-fill-tool doc-x doc-y (canvas/get-current-pixels @app) doc-width doc-height))
       (when (= paint-tool :picker)
-        (pick-color app doc-x doc-y doc-width))
+        (pick-color app doc-x doc-y doc-width background-color))
       (when (and (= paint-tool :selection) (not (om/get-state owner :user-is-moving-selection)))
         (make-selection app owner doc-x doc-y doc-width))
       (when (and (= paint-tool :selection) (om/get-state owner :user-is-moving-selection))
