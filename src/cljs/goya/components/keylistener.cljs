@@ -38,7 +38,7 @@
   (om/update! app [:tools :paint-tool] tool))
 
 (defn toggle-erase-mode [app]
-  (om/transact! app [:main-app :erase-mode] not))
+  (om/transact! app [:erase-mode] not))
 
 
 (defn handle-key-event [app event]

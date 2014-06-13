@@ -26,7 +26,7 @@
       (render-state [this {:keys [toolchan tool-name css-class supports-erase-mode]}]
         (let [current-paint-tool (get-in app [:tools :paint-tool])
               class-name (class-name-for-tool current-paint-tool tool-name)
-              show-erase-indicator (and supports-erase-mode (get-in app [:main-app :erase-mode]))]
+              show-erase-indicator (and supports-erase-mode (get-in app [:erase-mode]))]
         (omdom/div #js {:className class-name
                         :onClick (fn [e] (put! toolchan tool-name))}
           (omdom/i #js {:className css-class})
