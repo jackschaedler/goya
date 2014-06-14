@@ -18,26 +18,14 @@
 
 (defn update-preview []
   (reset! previewstate/preview-state
-          (assoc-in @previewstate/preview-state [:main-app :image-data]
-                    (get-in @app/app-state [:main-app :image-data])))
-  (reset! previewstate/preview-state
-          (assoc-in @previewstate/preview-state [:main-app :canvas-width]
-                    (get-in @app/app-state [:main-app :canvas-width])))
-  (reset! previewstate/preview-state
-          (assoc-in @previewstate/preview-state [:main-app :canvas-height]
-                    (get-in @app/app-state [:main-app :canvas-height]))))
+          (assoc-in @previewstate/preview-state [:main-app]
+                    (get-in @app/app-state [:main-app]))))
 
 
 (defn show-history-preview [idx]
   (reset! previewstate/preview-state
-          (assoc-in @previewstate/preview-state [:main-app :image-data]
-                    (get-in (nth @app-history idx) [:image-data])))
-  (reset! previewstate/preview-state
-          (assoc-in @previewstate/preview-state [:main-app :canvas-width]
-                    (get-in (nth @app-history idx) [:canvas-width])))
-  (reset! previewstate/preview-state
-          (assoc-in @previewstate/preview-state [:main-app :canvas-height]
-                    (get-in (nth @app-history idx) [:canvas-height]))))
+          (assoc-in @previewstate/preview-state [:main-app]
+                    (nth @app-history idx))))
 
 
 (add-watch app/app-state :preview-watcher

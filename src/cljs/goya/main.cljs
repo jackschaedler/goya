@@ -8,6 +8,8 @@
             [goya.timemachine :as timemachine]
             [goya.guistate :as guistate]
             [goya.previewstate :as previewstate]
+            [goya.globalcommands :as globalcommands]
+            [goya.components.animation :as animation]
             [goya.components.mainmenu :as mainmenu]
             [goya.components.toolsmenu :as toolsmenu]
             [goya.components.canvastools :as canvastools]
@@ -24,6 +26,12 @@
 
 (enable-console-print!)
 
+(reset! previewstate/preview-state @app/app-state)
+
+(defn tx-listener [tx-data root-cursor]
+  (globalcommands/handle-transaction tx-data root-cursor)
+  (timemachine/handle-transaction tx-data root-cursor))
+
 
 ;; =============================================================================
 ;; This got out of hand before I got the hang of OM. Subsequent version will
@@ -39,7 +47,7 @@
   app/app-state
   {:path [:info]
    :target (. js/document (getElementById "title"))
-   :tx-listen #(timemachine/handle-transaction % %)})
+   :tx-listen #(tx-listener % %)})
 
 
 (om/root
@@ -70,14 +78,18 @@
 (om/root
   toolsmenu/tools-menu-component
   app/app-state
-  {:target (. js/document (getElementById "tools-menu"))
-   :path [:tools]})
+  {:target (. js/document (getElementById "tools-menu"))})
 
 
 (om/root
   canvastools/cursor-pos-component
   guistate/transient-state
   {:target (. js/document (getElementById "cursor-pos-indicator"))})
+
+(om/root
+  canvastools/frame-num-component
+  previewstate/preview-state
+  {:target (. js/document (getElementById "frame-num-indicator"))})
 
 
 (om/root
@@ -107,7 +119,14 @@
 (om/root
   drawing/canvas-painting-component
   app/app-state
-  {:target (. js/document (getElementById "canvas-watcher"))})
+  {:target (. js/document (getElementById "canvas-watcher"))
+   :shared {:command-chan globalcommands/command-chan}})
+
+
+(om/root
+  animation/animation-controls-component
+  app/app-state
+  {:target (. js/document (getElementById "animation-controls"))})
 
 
 (om/root

@@ -41,6 +41,15 @@
               :onClick #(put! addchan (.-value (dom/getElement "palette_adder_input")))}
          "Add Color")))))
 
+(defn palette-bg-color-component [app owner]
+  (reify
+    om/IRenderState
+    (render-state [this {:keys [bgchan]}]
+      (omdom/div
+       #js {:className "background-color-button"
+            :onClick #(put! bgchan :set-bg-color)}
+       "Set Background"))))
+
 
 (defn palette-current-colors-component [app owner]
   (reify
@@ -54,6 +63,12 @@
                          :state {:current-color current-color}}))))))
 
 
+(defn set-bg-color [app]
+  (om/update! app [:main-app :background-color] (get-in @app [:tools :paint-color]))
+  (om/transact! app
+                [:main-app :undo-history]
+                #(conj % {:action "Set Background Color" :icon "pipette"})
+                :add-to-undo))
 
 (defn set-paint-color [app color]
   (om/update! app [:tools :paint-color] color))
@@ -76,24 +91,29 @@
     om/IInitState
     (init-state [_]
       {:addchan (chan)
-       :selectchan (chan)})
+       :selectchan (chan)
+       :bgchan (chan)})
 
     om/IWillMount
     (will-mount [_]
       (let [addchan (om/get-state owner :addchan)
-            selectchan (om/get-state owner :selectchan)]
+            selectchan (om/get-state owner :selectchan)
+            bgchan (om/get-state owner :bgchan)]
         (go
           (while true
-            (let [[v ch] (alts! [addchan selectchan])]
+            (let [[v ch] (alts! [addchan selectchan bgchan])]
               (when (= ch addchan)
                 (add-color app v))
               (when (= ch selectchan)
-                (set-paint-color app v)))))))
+                (set-paint-color app v))
+              (when (= ch bgchan)
+                (set-bg-color app)))))))
 
     om/IRenderState
-    (render-state [this {:keys [addchan selectchan]}]
+    (render-state [this {:keys [addchan selectchan bgchan]}]
       (omdom/div #js {:className "palette"}
         (om/build palette-adder-component app {:init-state {:addchan addchan}})
+        (om/build palette-bg-color-component app {:init-state {:bgchan bgchan}})
         (om/build palette-current-colors-component
                   {:palette (get-in app [:main-app :palette])
                    :tools (get-in app [:tools])}

@@ -16,8 +16,10 @@
           :optimizations :advanced
           :pretty-print false
           :preamble ["react/react_with_addons.min.js"
-                     "gifjs/dist/gif.js"]
+                     "gifjs/dist/gif.js"
+                     "lz-string/lz-string-1.3.3-min.js"]
           :externs ["react/react_with_addons.js"
-                    "gifjs/dist/gif.js"]
+                    "gifjs/dist/gif.js"
+                    "lz-string/lz-string-1.3.3-min.js"]
           :closure-warnings {:externs-validation :off
                              :non-standard-jsdoc :off}}}]})
