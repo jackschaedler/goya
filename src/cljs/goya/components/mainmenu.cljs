@@ -87,30 +87,30 @@
     (set! (.-href download-link) (.createObjectURL js/URL blob))
     (.click download-link)))
 
-(defn export-history-animation [owner]
-  (let [render-canvas (. js/document (createElement "canvas"))
-        max-width 64
-        max-height 64
-        zoom-factor 2
-        app-history @timemachine/app-history
-        gif (js/GIF. #js {:workers 2
-                          :quality 10
-                          :width (* max-width zoom-factor)
-                          :height (* max-height zoom-factor)
-                          :workerScript "./gifjs/dist/gif.worker.js"})]
-    (om/set-state! owner :is-processing true)
-    (om/set-state! owner :progress 0)
-    (dotimes [x (count app-history)]
-      (let [history-snapshot (nth app-history x)
-            width (get-in history-snapshot [:canvas-width])
-            height (get-in history-snapshot [:canvas-height])
-            image-data (get-in history-snapshot [:image-data])
-            context (.getContext render-canvas "2d")]
-        (canvasdrawing/draw-image-to-canvas image-data render-canvas width height zoom-factor)
-        (.addFrame gif context #js {:copy true :delay 300})))
-    (.on gif "finished" #(download-history-animation % owner))
-    (.on gif "progress" #(show-progress % owner))
-    (.render gif)))
+;; (defn export-history-animation [owner]
+;;   (let [render-canvas (. js/document (createElement "canvas"))
+;;         max-width 64
+;;         max-height 64
+;;         zoom-factor 2
+;;         app-history @timemachine/app-history
+;;         gif (js/GIF. #js {:workers 2
+;;                           :quality 10
+;;                           :width (* max-width zoom-factor)
+;;                           :height (* max-height zoom-factor)
+;;                           :workerScript "./gifjs/dist/gif.worker.js"})]
+;;     (om/set-state! owner :is-processing true)
+;;     (om/set-state! owner :progress 0)
+;;     (dotimes [x (count app-history)]
+;;       (let [history-snapshot (nth app-history x)
+;;             width (get-in history-snapshot [:canvas-width])
+;;             height (get-in history-snapshot [:canvas-height])
+;;             image-data (get-in history-snapshot [:image-data])
+;;             context (.getContext render-canvas "2d")]
+;;         (canvasdrawing/draw-image-to-canvas image-data render-canvas width height zoom-factor)
+;;         (.addFrame gif context #js {:copy true :delay 300})))
+;;     (.on gif "finished" #(download-history-animation % owner))
+;;     (.on gif "progress" #(show-progress % owner))
+;;     (.render gif)))
 
 
 (defn export-animation [owner]
@@ -195,7 +195,7 @@
             (when (= command :export-doc) (export-image))
             (when (= command :export-spritesheet) (export-spritesheet))
             (when (= command :export-animation) (export-animation origin-owner))
-            (when (= command :export-history-animation) (export-history-animation origin-owner))
+;;             (when (= command :export-history-animation) (export-history-animation origin-owner))
           (recur))))))
 
     om/IRenderState
