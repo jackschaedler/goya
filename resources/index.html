@@ -87,5 +87,14 @@
 
         <script type="text/javascript" src="./main.js"></script>
         <script type="text/javascript" src="./browser-check.js"></script>
+        <script type="text/javascript">
+            function preventBackspaceHandler(evt) {
+                evt = evt || window.event;
+                if (evt.keyCode == 8) {
+                    return false;
+                }
+            }
+            document.onkeydown = preventBackspaceHandler;
+        </script>
     </body>
 </html>
