@@ -93,6 +93,7 @@
         new-animation [{:image-data new-image-data}]]
     (om/update! app [:main-app :canvas-width] width)
     (om/update! app [:main-app :canvas-height] height)
+    (om/update! app [:main-app :editing-frame] 0)
     (om/update! app [:main-app :animation] new-animation)
     (om/transact! app
                   [:main-app :undo-history]
