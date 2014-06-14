@@ -30,6 +30,7 @@
 (def PLUS-KEY 187)
 (def LEFT-ARROW-KEY 37)
 (def RIGHT-ARROW-KEY 39)
+(def BACKSPACE-KEY 8)
 
 
 (def key-chan (chan))
@@ -72,6 +73,7 @@
                    (and (= keyCode A-KEY) (or ctrlKey metaKey))
                      #(globalcommands/select-all)
                    (= keyCode C-KEY) #(globalcommands/clear)
+                   (= keyCode BACKSPACE-KEY) #(globalcommands/clear)
                    (= keyCode A-KEY) #(animation/add-new-frame app)
                  )]
     (when-not (= handler nil) (handler app))))
