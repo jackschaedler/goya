@@ -1,4 +1,4 @@
-@import url("fonts/fontello-7bc56e03/css/fontello.css");
+@import url("fonts/fontello-c1686fe7/css/fontello.css");
 
 /************************************************************/
 /* Global */
@@ -23,6 +23,9 @@ body
 {
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 
@@ -85,7 +88,7 @@ body
 {
   position: absolute;
   width: 230px;
-  height: 100%;
+  height: 1250px;
   top: 0px;
   right: 0px;
   background: #2a2a2a;
@@ -100,7 +103,7 @@ body
   top: 0px;
   left: 0px;
   width: 230px;
-  height: 100%;
+  height: 1250px;
   background: #272727;
 
   box-shadow: 1px 1px 2px 2px rgba(0,0,0,0.3);
@@ -177,6 +180,23 @@ body
   font-weight: normal;
   color: #727272;
   text-align: left;
+  line-height: 30px;
+  height: 30px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
+.frame-num-indicator
+{
+  position: absolute;
+  left: 70px;
+  top: 485px;
+  width: 150px;
+  font-family: "Futura";
+  font-size: 12px;
+  font-weight: normal;
+  color: #727272;
+  text-align: right;
   line-height: 30px;
   height: 30px;
   -webkit-user-select: none;
@@ -320,6 +340,14 @@ body
   margin: 2px;
   -webkit-user-select: none;
   -moz-user-select: none;
+}
+
+.erase-mode-indicator
+{
+  position: absolute;
+  margin-top: -16px;
+  margin-left: 22px;
+  height: 15px;
 }
 
 .tools-menu-item-selected
@@ -483,7 +511,7 @@ body
 .goyaBody
 {
   padding: 0px;
-  height: 100%;
+  height: 1250px;
   background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#222222), to(#000000));
   background: -moz-linear-gradient(top, #222222, #000000);
   -webkit-user-select: none;
@@ -507,6 +535,7 @@ body
 
 .palette-colors
 {
+  clear: both;
   margin-left: 3px;
   height: 100px;
   overflow: auto;
@@ -532,10 +561,32 @@ body
   border: 2px solid #ffffff;
 }
 
+.background-color-button
+{
+  padding-right: 13px;
+  font-family: "Futura";
+  font-size: 12px;
+  font-weight: normal;
+  color: #c2c2c2;
+  background: #323232;
+  text-align: right;
+  line-height: 31px;
+  height: 32px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  cursor: pointer;
+}
+
+.background-color-button:hover
+{
+  color: #e2e2e2;
+  background: #212121;
+}
+
 .palette_adder_entry
 {
-  clear: both;
-  width: 230px;
+  float: left;
+  width: 120px;
   height: 32px;
   margin-bottom: 4px;
   background: #323232;
@@ -557,7 +608,7 @@ body
   font-weight: normal;
   color: #c2c2c2;
   text-align: left;
-  padding-left: 85px;
+  padding-left: 45px;
   line-height: 32px;
   height: 32px;
   -webkit-user-select: none;
@@ -695,7 +746,7 @@ body
 .about-info
 {
   position: absolute;
-  top: 640px;
+  top: 720px;
   font-family: "Futura";
   font-size: 12px;
   font-weight: normal;
@@ -748,4 +799,127 @@ body
   border: 1px solid #626262;
   color: #626262;
   border-radius: 2px;
+}
+
+
+.animation-controls
+{
+  position: absolute;
+  width: 600px;
+  height: 75px;
+  top: 0px;
+  left: 275px;
+  background: #212121;
+  box-shadow: 1px 1px 2px 2px rgba(0,0,0,0.3);
+
+  font-family: "Futura";
+  font-size: 12px;
+  font-weight: normal;
+  color: #a2a2a2;
+}
+
+.animation-controls .animation-frames
+{
+  position: absolute;
+  width: 595px;
+  height: 55px;
+  top: 0px;
+  overflow-x: auto;
+  padding-left: 5px;
+  background: #212121;
+  white-space: nowrap;
+}
+
+.animation-controls .animation-frames .animation-frame
+{
+  float: left;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  margin-left: 3px;
+  background: #212121;
+  line-height: 30px;
+  text-align: center;
+  border: 1px solid #424242;
+  cursor: pointer;
+  color: #626262;
+}
+
+.animation-controls .animation-frames .animation-frame:hover
+{
+  background: #121212;
+  color: #ffffff;
+  border: 1px solid #929292;
+}
+
+.animation-controls .animation-frames .animation-frame-selected
+{
+  background: #121212;
+  color: #ffffff;
+  border: 1px solid #929292;
+}
+
+.animation-controls .animation-frames .animation-frame-onion-skin
+{
+  background: #121212;
+  color: #ffffff;
+  border: 1px dashed #929292;
+}
+
+.animation-controls .animation-frames .animation-frame .frame-number
+{
+  line-height: 5px;
+  text-align: center;
+  margin-top: 8px;
+  margin-left: 0px;
+  font-size: 10px;
+}
+
+.animation-controls .animation-tools
+{
+  background: #2a2a2a;
+  position: absolute;
+  width: 600px;
+  height: 75px;
+}
+
+.animation-controls .animation-tools-bar
+{
+  height: 20px;
+  margin-top: 54px;
+}
+
+.animation-controls .animation-tools .animation-icon
+{
+  color: #626262;
+  float: left;
+  padding-left: 2px;
+  padding-right: 2px;
+  height: 22px;
+  margin-right: -1px;
+  line-height: 22px;
+  font-size: 16px;
+  padding-top: 2px;
+  cursor: pointer;
+}
+
+
+.animation-controls .animation-tools .animation-icon:hover
+{
+  color: #b2b2b2;
+}
+
+.animation-controls .animation-tools .animation-icon-selected
+{
+  color: #d2d2d2;
+}
+
+.animation-controls .animation-tools .animation-info
+{
+  float: left;
+  color: #929292;
+  padding-left: 7px;
+  padding-right: 7px;
+  height: 22px;
+  line-height: 22px;
 }
