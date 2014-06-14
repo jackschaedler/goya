@@ -118,6 +118,7 @@
         width (get-in @app/app-state [:main-app :canvas-width])
         height (get-in @app/app-state [:main-app :canvas-height])
         animation (get-in @app/app-state [:main-app :animation])
+        background-color (get-in @app/app-state [:main-app :background-color])
         gif (js/GIF. #js {:workers 4
                           :quality 1
                           :width width
@@ -129,7 +130,7 @@
       (let [frame (nth animation x)
             image-data (get-in frame [:image-data])
             context (.getContext render-canvas "2d")]
-        (canvasdrawing/draw-image-to-canvas image-data render-canvas width height 1)
+        (canvasdrawing/draw-image-to-canvas image-data render-canvas width height 1 background-color)
         (.addFrame gif context #js {:copy true :delay 300})))
     (.on gif "finished" #(download-history-animation % owner))
     (.on gif "progress" #(show-progress % owner))
