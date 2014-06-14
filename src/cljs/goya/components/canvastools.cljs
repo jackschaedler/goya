@@ -88,7 +88,7 @@
         selected-option (.-value canvas-size-chooser)
         [width height] (string-to-dimensions selected-option)
         total-num-pixels (* width height)
-        new-image-data (vec (take total-num-pixels (repeat "#000000")))
+        new-image-data (vec (take total-num-pixels (repeat "#T")))
         animation (get-in @app [:main-app :animation])
         new-animation [{:image-data new-image-data}]]
     (om/update! app [:main-app :canvas-width] width)

@@ -146,7 +146,7 @@
   (let [width (get-in @app [:main-app :canvas-width])
         height (get-in @app [:main-app :canvas-height])
         num-pixels (* width height)
-        blank-frame {:image-data (vec (take num-pixels (repeat "#000000")))}
+        blank-frame {:image-data (vec (take num-pixels (repeat "#T")))}
         new-animation [blank-frame]]
     (timemachine/forget-everything)
     (om/update! app [:main-app :editing-frame] 0)
