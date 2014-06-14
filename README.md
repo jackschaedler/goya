@@ -11,12 +11,6 @@ http://jackschaedler.github.io/goya/.
 ![Alt text](preview.png "Goya in Action")
 
 
-## Export your entire history in animated form
-
-Goya supports exporting your entire canvas history as an animated gif. Could be handy for demonstrating techniques or making tutorials about pixel-art.
-
-![Alt text](animation-example.gif "Goya exports your history as an animation")
-
 ## Credits
 
 Fontello.com provides the very nice and spiffy icon fonts which are used in the GUI.
