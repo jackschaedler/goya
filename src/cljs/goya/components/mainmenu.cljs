@@ -117,12 +117,13 @@
   (let [render-canvas (. js/document (createElement "canvas"))
         width (get-in @app/app-state [:main-app :canvas-width])
         height (get-in @app/app-state [:main-app :canvas-height])
+        zoom-factor (get-in @app/app-state [:zoom-factor])
         animation (get-in @app/app-state [:main-app :animation])
         background-color (get-in @app/app-state [:main-app :background-color])
         gif (js/GIF. #js {:workers 4
                           :quality 1
-                          :width width
-                          :height height
+                          :width (* width zoom-factor)
+                          :height (* height zoom-factor)
                           :workerScript "./gifjs/dist/gif.worker.js"})]
     (om/set-state! owner :is-processing true)
     (om/set-state! owner :progress 0)
@@ -130,8 +131,8 @@
       (let [frame (nth animation x)
             image-data (get-in frame [:image-data])
             context (.getContext render-canvas "2d")]
-        (canvasdrawing/draw-image-to-canvas image-data render-canvas width height 1 background-color)
-        (.addFrame gif context #js {:copy true :delay 300})))
+        (canvasdrawing/draw-image-to-canvas image-data render-canvas width height zoom-factor background-color)
+        (.addFrame gif context #js {:copy true :delay 200})))
     (.on gif "finished" #(download-history-animation % owner))
     (.on gif "progress" #(show-progress % owner))
     (.render gif)))
